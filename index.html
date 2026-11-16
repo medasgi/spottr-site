@@ -4,328 +4,393 @@
 <meta charset="utf-8">
 <script>if(location.protocol==="http:"&&!/^(localhost|127\.)/.test(location.hostname))location.replace("https:"+location.href.slice(5))</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spottr: Gym Workout Tracker for iPhone</title>
-<meta name="description" content="Spottr logs every set in a couple of taps, tracks your progress and turns every workout into insights that make you stronger. Your workouts stay on your iPhone.">
-<meta name="theme-color" content="#E6E8EA" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#060507" media="(prefers-color-scheme: dark)">
+<title>Spottr: Gym Workout Tracker &amp; Coach</title>
+<meta name="description" content="Spottr logs every set in a couple of taps, shows you the number to beat, and reviews every workout like a coach. Built on sports science.">
+<meta name="theme-color" content="#060507">
 <meta property="og:title" content="Spottr: know what to lift next">
-<meta property="og:description" content="A gym tracker that logs every set, shows the number to beat, and tracks your progress. Free on iPhone.">
+<meta property="og:description" content="A gym tracker that logs every set, shows the number to beat, and tells you how to break through.">
 <meta property="og:image" content="https://spottr.me/icon-512.png">
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icon-180.png">
-<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/jakarta-600.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-  /* Fonts are served from this site: no requests to Google or anyone else. Both are SIL Open Font License. */
-  @font-face { font-family: 'Archivo'; src: url(fonts/archivo.woff2) format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+  /* Fonts are served from this site: no requests to Google or anyone else. SIL Open Font License. */
   @font-face { font-family: 'Plus Jakarta Sans'; src: url(fonts/jakarta-400.woff2) format('woff2'); font-weight: 400; font-display: swap; }
   @font-face { font-family: 'Plus Jakarta Sans'; src: url(fonts/jakarta-500.woff2) format('woff2'); font-weight: 500; font-display: swap; }
-  @font-face { font-family: 'Plus Jakarta Sans'; src: url(fonts/jakarta-600.woff2) format('woff2'); font-weight: 600; font-display: swap; }
+  @font-face { font-family: 'Plus Jakarta Sans'; src: url(fonts/jakarta-600.woff2) format('woff2'); font-weight: 600 800; font-display: swap; }
+
   :root {
-    --page: #E6E8EA;       /* light Seal Grey */
-    --plate: #CBCFD2;      /* Seal Grey: hairlines, idle controls */
-    --ink: #060507;        /* Galaxy Black */
-    --graphite: #4A4E53;
-    --surface: #FFFFFF;
-    --orange: #F74B01;     /* Sunrise Orange: only for actions and wins */
-    --display: 'Archivo', 'Arial Narrow', system-ui, sans-serif;
-    --text: 'Plus Jakarta Sans', system-ui, sans-serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --page: #060507; --plate: #2C2E32; --ink: #EEF0F1; --graphite: #A3A8AC; --surface: #141417; --orange: #FF5714; }
+    --bg: #060507;          /* Galaxy Black */
+    --panel: #0E0D10;
+    --line: rgba(255, 255, 255, 0.07);
+    --line-strong: rgba(255, 255, 255, 0.12);
+    --text: #F3F4F5;
+    --muted: #8D9297;
+    --soft: #B9BDC1;
+    --orange: #F74B01;      /* Sunrise Orange */
+    --orange-soft: #FF6A26;
+    --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: var(--page); color: var(--ink); font: 400 17px/1.6 var(--text); -webkit-font-smoothing: antialiased; }
-  a { color: inherit; }
-  :focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; border-radius: 6px; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  :focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; border-radius: 8px; }
+  .wrap { width: min(1160px, 100% - 40px); margin: 0 auto; }
 
-  /* Display type: condensed and heavy, like numbers stamped on a plate. */
-  .d { font-family: var(--display); font-stretch: 72%; font-weight: 850; letter-spacing: -0.01em; line-height: 0.92; font-variant-numeric: tabular-nums; }
+  /* Dot texture that fades out at the edges, and the soft orange glow. */
+  .dots { position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1.2px); background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 0%, transparent 75%); }
+  .glow { position: absolute; pointer-events: none; border-radius: 50%; filter: blur(80px); background: radial-gradient(circle, rgba(247,75,1,0.55), rgba(247,75,1,0) 70%); }
 
-  header { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
-  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-stretch: 85%; font-weight: 800; font-size: 22px; letter-spacing: -0.01em; }
-  .brand svg { width: 34px; height: 34px; }
-  .ring { fill: var(--ink); }
+  /* Header */
+  header { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); background: rgba(6,5,7,0.6); border-bottom: 1px solid transparent; transition: border-color .2s; }
+  header.scrolled { border-bottom-color: var(--line); }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
+  .brand svg { width: 30px; height: 30px; }
+  .brand .ring { fill: var(--text); }
   .slice { fill: var(--orange); transform-box: view-box; transform-origin: 47.85% 52.15%; }
-  /* Same as the app's intro: the slice falls along the ring from the top of the gap, then slides out to rest. */
-  @media (prefers-reduced-motion: no-preference) {
-    .brand .slice { animation: drop 600ms 200ms both; }
-  }
+  @media (prefers-reduced-motion: no-preference) { header .brand .slice { animation: drop 600ms 250ms both; } }
   @keyframes drop {
     0% { transform: rotate(-48deg) translate(-49.5px, 49.5px); animation-timing-function: linear; }
     10% { transform: rotate(-48deg) translate(-49.5px, 49.5px); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
     60% { transform: rotate(6deg) translate(-49.5px, 49.5px); animation-timing-function: cubic-bezier(.33, 1, .68, 1); }
     100% { transform: rotate(0deg) translate(0, 0); }
   }
-  .btn { display: inline-flex; align-items: center; justify-content: center; height: 52px; padding: 0 26px; border-radius: 26px; background: var(--ink); color: var(--page); font: 600 16px var(--text); text-decoration: none; transition: transform 80ms; }
+  .links { display: flex; gap: 30px; font-size: 14px; color: var(--muted); }
+  .links a:hover { color: var(--text); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 24px; border-radius: 999px; font: 600 15px var(--font); white-space: nowrap; transition: transform .12s, background .2s; }
   .btn:active { transform: scale(0.97); }
-  .btn.small { height: 42px; padding: 0 18px; font-size: 14px; }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-light { background: var(--text); color: var(--bg); }
+  .btn-light:hover { background: #fff; }
+  .btn-orange { background: var(--orange); color: #fff; box-shadow: 0 10px 40px -10px rgba(247,75,1,0.7), inset 0 1px 0 rgba(255,255,255,0.25); }
+  .btn-orange:hover { background: var(--orange-soft); }
+  .btn-ghost { border: 1px solid var(--line-strong); color: var(--soft); }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+  .btn-small { height: 40px; padding: 0 18px; font-size: 14px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.03); font-size: 13px; font-weight: 500; color: var(--soft); }
+  .pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+
+  h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.035em; }
+  h1 { font-size: clamp(44px, 6vw, 80px); line-height: 1.02; }
+  h2 { font-size: clamp(34px, 4.4vw, 58px); line-height: 1.06; }
+  h3 { font-size: clamp(26px, 2.8vw, 36px); line-height: 1.1; }
+  .muted { color: var(--muted); }
 
   /* Hero */
-  .hero { padding: 48px 0 88px; }
-  .hero-top { display: grid; gap: 28px; margin-bottom: 8px; }
-  .hero-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px 40px; }
-  .hero-row .lead { margin: 0; }
-  .hero-row .meta { margin: 10px 0 0; }
-  h1 { font-size: clamp(54px, 8.6vw, 124px); margin: 0; max-width: 11em; }
-  .lead { font-size: 19px; color: var(--graphite); max-width: 26em; margin: 0 0 30px; }
-  .meta { font-size: 14px; color: var(--graphite); margin: 14px 0 0; }
-  /* Screens rising out of an orange stage, cut off by its bottom edge. */
-  .stage { position: relative; margin-top: 8px; height: clamp(440px, 54vw, 620px); border-radius: 44px; overflow: hidden; }
-  .stage::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 64%; border-radius: 44px; background: var(--orange); }
-  .phone { position: absolute; bottom: -18%; aspect-ratio: 390 / 844; border-radius: 40px; border: 8px solid #060507; overflow: hidden; background: #060507; box-shadow: 0 24px 50px -20px rgba(6,5,7,0.5); }
-  .phone::before { content: ''; position: absolute; top: 2.2%; left: 50%; width: 30%; height: 3.6%; transform: translateX(-50%); border-radius: 99px; background: #060507; z-index: 2; }
-  .phone img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .phone.p2 { width: 31%; left: 34.5%; bottom: -30%; z-index: 2; }
-  .phone.p1 { width: 25%; left: 7%; bottom: -36%; }
-  .phone.p3 { width: 25%; right: 7%; bottom: -36%; }
+  .hero { position: relative; padding: 56px 0 40px; overflow: hidden; }
+  .hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+  .hero h1 { margin: 22px 0 22px; max-width: 10.5em; }
+  .hero .lead { font-size: 19px; color: var(--soft); max-width: 28em; margin: 0 0 34px; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .note { margin: 18px 0 0; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .note b { color: var(--soft); font-weight: 600; }
 
-  /* With and without. */
-  .versus { padding: 72px 0; border-top: 1px solid var(--plate); }
-  .versus h2 { font-size: clamp(44px, 6vw, 72px); margin: 0 0 32px; max-width: 12em; }
-  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .vs-card { border-radius: 30px; padding: 28px; }
-  .vs-card.without { background: var(--surface); }
-  .vs-card.with { background: #060507; color: #EEF0F1; }
-  .vs-card h3 { font: 600 15px var(--text); margin: 0 0 14px; color: var(--graphite); }
-  .vs-card.with h3 { color: var(--orange); }
-  .vs-card ul { margin: 0; padding: 0; list-style: none; }
-  .vs-card li { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-top: 1px solid var(--plate); font-size: 18px; line-height: 1.4; }
-  .vs-card.with li { border-color: rgba(255,255,255,0.12); font-weight: 600; }
-  .vs-card.without li { color: var(--graphite); }
-  @media (prefers-color-scheme: dark) { .vs-card.with { background: #1C1B1F; box-shadow: inset 0 0 0 1.5px var(--orange); } }
-  .vs-card li svg { flex: none; width: 22px; height: 22px; margin-top: 1px; }
-  .idea .lose { margin-top: 14px; color: var(--ink); font-weight: 600; }
+  .stage { position: relative; height: 640px; }
+  .stage .glow { width: 520px; height: 520px; left: 50%; top: 52%; transform: translate(-50%, -50%); opacity: 0.75; }
+  .phone { position: absolute; aspect-ratio: 390 / 844; border-radius: 46px; padding: 9px; background: linear-gradient(160deg, #2A292D, #0C0B0E 40%, #1C1B1F); box-shadow: 0 50px 100px -30px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 1px rgba(255,255,255,0.06); }
+  .phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 38px; }
+  .phone::after { content: ''; position: absolute; top: 3.3%; left: 50%; width: 29%; height: 3.4%; transform: translateX(-50%); border-radius: 99px; background: #000; }
+  .stage .front { width: 300px; left: 50%; top: 10px; transform: translateX(-34%); z-index: 2; }
+  .stage .back { width: 260px; left: 50%; top: 70px; transform: translateX(-112%) rotate(-7deg); opacity: 0.92; }
 
-  /* Four ideas: a statement beside a real example. */
-  section.idea { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: start; padding: 72px 0; border-top: 1px solid var(--plate); }
-  .idea h2 { font-size: clamp(44px, 6vw, 72px); margin: 0 0 18px; }
-  .idea p { color: var(--graphite); margin: 0; max-width: 28em; }
+  /* Sections */
+  section { position: relative; }
+  .block { padding: 120px 0; }
+  .head { text-align: center; max-width: 760px; margin: 0 auto 72px; }
+  .head h2 { margin: 20px 0 16px; }
+  .head p { margin: 0; font-size: 18px; color: var(--muted); }
 
-  .log { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .log th { text-align: left; font: 600 18px var(--text); padding: 18px 0 8px; }
-  .log td { padding: 9px 0; border-bottom: 1px solid var(--plate); color: var(--graphite); font-size: 15px; }
-  .log td.n { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 22px; color: var(--ink); text-align: right; }
-  .log tr.pr td.n { color: var(--orange); }
-  .log caption { caption-side: bottom; text-align: left; padding-top: 14px; font-size: 14px; color: var(--graphite); }
+  /* Features: numbered rows, text beside a card with the phone rising from it. */
+  .feature { display: grid; grid-template-columns: 1fr 1.1fr; gap: 64px; align-items: center; }
+  .feature + .feature { margin-top: 110px; }
+  .feature.flip .shot { order: -1; }
+  .num { display: inline-flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); }
+  .num span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-strong); color: var(--text); background: rgba(255,255,255,0.03); }
+  .feature h3 { margin: 20px 0 14px; }
+  .feature p { margin: 0 0 26px; font-size: 17px; color: var(--muted); max-width: 30em; }
+  .ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  .ticks li { display: flex; gap: 12px; align-items: center; font-size: 16px; color: var(--soft); }
+  .ticks svg { flex: none; width: 22px; height: 22px; }
+  .shot { position: relative; height: 540px; border-radius: 32px; background: var(--panel); border: 1px solid var(--line); overflow: hidden; }
+  .shot .glow { width: 420px; height: 420px; left: 50%; bottom: -220px; transform: translateX(-50%); opacity: 0.6; }
+  .shot .phone { width: 290px; left: 50%; top: 56px; transform: translateX(-50%); }
 
-  .chart { width: 100%; height: auto; display: block; overflow: visible; }
-  .chart .grid line { stroke: var(--plate); }
-  .chart .axis { fill: var(--graphite); font: 500 12px var(--text); }
-  .chart .line { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
-  .chart .dot { fill: var(--orange); }
-  .chart .big { fill: var(--ink); font-family: var(--display); font-stretch: 72%; font-weight: 850; font-size: 64px; }
-  .chart .note { fill: var(--graphite); font: 500 14px var(--text); }
-  .chart .goal { fill: var(--orange); }
+  /* Research band */
+  .science { padding: 0 0 120px; }
+  .science-card { position: relative; overflow: hidden; border-radius: 32px; border: 1px solid var(--line); background: var(--panel); padding: 64px 56px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
+  .science-card h2 { font-size: clamp(32px, 3.8vw, 48px); margin: 20px 0 14px; }
+  .science-card p { margin: 0; color: var(--muted); font-size: 17px; }
+  .science-card > :not(.dots) { position: relative; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stat { border-radius: 20px; border: 1px solid var(--line); background: rgba(255,255,255,0.02); padding: 18px 16px; }
+  .stat b { display: block; font-size: 22px; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .stat span { font-size: 13px; line-height: 1.45; color: var(--muted); display: block; }
 
-  .beat { display: grid; gap: 14px; }
-  .beat-line { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--plate); }
-  .beat-line span { color: var(--graphite); font-size: 15px; }
-  .beat-line b { font-size: clamp(40px, 5vw, 56px); }
-  .beat-line.target b { color: var(--orange); }
+  /* Pricing */
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto; }
+  .plan { position: relative; overflow: hidden; border-radius: 30px; border: 1px solid var(--line); background: var(--panel); padding: 36px; display: flex; flex-direction: column; }
+  .plan.pro { border-color: rgba(247,75,1,0.45); background: linear-gradient(180deg, rgba(247,75,1,0.10), rgba(247,75,1,0) 45%), var(--panel); box-shadow: 0 30px 80px -40px rgba(247,75,1,0.55); }
+  .plan h3 { font-size: 22px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+  .badge { font-size: 12px; font-weight: 600; letter-spacing: 0; color: #fff; background: var(--orange); padding: 4px 10px; border-radius: 999px; }
+  .price { margin: 18px 0 6px; font-size: 48px; font-weight: 700; letter-spacing: -0.04em; }
+  .price small { font-size: 16px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .plan > p { margin: 0 0 26px; color: var(--muted); font-size: 15px; }
+  .plan .ticks { margin-bottom: 30px; }
+  .plan .btn { margin-top: auto; }
 
+  /* Closing */
+  .closing { padding: 0 0 110px; }
+  .closing-card { position: relative; overflow: hidden; text-align: center; border-radius: 36px; border: 1px solid var(--line); background: var(--panel); padding: 96px 24px; }
+  .closing-card .glow { width: 640px; height: 420px; left: 50%; top: 100%; transform: translate(-50%, -50%); opacity: 0.85; }
+  .closing-card h2 { position: relative; max-width: 12em; margin: 0 auto 18px; }
+  .closing-card p { position: relative; margin: 0 auto 36px; color: var(--soft); font-size: 18px; }
+  .closing-card .cta-row { position: relative; justify-content: center; }
 
-  /* Coach review: one line per note, a short coloured word says what kind. */
-  .review { display: grid; gap: 0; }
-  .note { display: grid; grid-template-columns: 5.5em 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--plate); }
-  .note:first-child { border-top: 2px solid var(--ink); }
-  .note .k { font: 600 13px/1.9 var(--text); color: var(--graphite); }
-  .note .k.win { color: var(--orange); }
-  .note b { display: block; font: 600 17px/1.35 var(--text); color: var(--ink); }
-  .note span { display: block; font-size: 15px; color: var(--graphite); margin-top: 2px; }
-  .review small { padding-top: 14px; font-size: 14px; color: var(--graphite); }
+  footer { border-top: 1px solid var(--line); padding: 32px 0 44px; }
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+  .foot nav { display: flex; gap: 26px; }
+  .foot a:hover { color: var(--text); }
 
-
-  /* Free and Pro side by side. */
-  /* The research: lab-card numbers with footnotes. */
-  .science { padding: 72px 0; border-top: 1px solid var(--plate); }
-  .science h2 { font-size: clamp(44px, 6vw, 72px); margin: 0 0 14px; max-width: 11em; }
-  .science > p { color: var(--graphite); max-width: 34em; margin: 0; }
-  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 0; padding: 0; list-style: none; }
-  .fact { position: relative; padding: 24px; border-radius: 28px; background: var(--surface); display: flex; flex-direction: column; gap: 10px; }
-  .fact .num { font-size: clamp(56px, 6vw, 84px); color: var(--orange); }
-  .fact p { margin: 0; font-size: 16px; }
-  .fact cite { margin-top: auto; padding-top: 14px; border-top: 1px dashed var(--plate); font-style: normal; font-size: 13px; color: var(--graphite); }
-  .fact cite a { text-decoration-color: var(--plate); text-underline-offset: 3px; }
-  .fact sup { position: absolute; top: 18px; right: 22px; font: 600 12px var(--text); color: var(--graphite); }
-  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .plan { padding: 26px 26px 22px; border-radius: 28px; background: var(--surface); }
-  .plan.pro { background: var(--ink); color: var(--page); }
-  .plan h3 { font-size: 44px; margin: 0 0 4px; }
-  .plan .sub { margin: 0 0 16px; font-size: 14px; color: var(--graphite); }
-  .plan.pro .sub { color: var(--plate); }
-  .plan ul { margin: 0; padding: 0; list-style: none; }
-  .plan li { padding: 9px 0; border-top: 1px solid var(--plate); font-size: 15px; }
-  .plan.pro li { border-color: rgba(255,255,255,0.14); }
-  @media (prefers-color-scheme: dark) { .plan.pro li { border-color: rgba(6,5,7,0.14); } }
-
-  .simple { padding: 96px 0 72px; border-top: 1px solid var(--plate); }
-  .simple h2 { font-size: clamp(56px, 9vw, 116px); margin: 0 0 28px; max-width: 9em; }
-  .nots { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 40px; padding: 0; list-style: none; }
-  .nots li { padding: 10px 18px; border: 1.5px solid var(--plate); border-radius: 999px; font-weight: 500; font-size: 15px; }
-  .simple p { color: var(--graphite); max-width: 34em; margin: 0 0 32px; }
-
-  footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 28px 0 40px; border-top: 1px solid var(--plate); font-size: 14px; color: var(--graphite); }
-  footer nav { display: flex; gap: 22px; }
-
-  @media (max-width: 860px) {
-    section.idea { grid-template-columns: 1fr; gap: 36px; }
-    .hero { grid-template-columns: 1fr; gap: 28px; padding-top: 24px; }
-    /* On phones: all three screens fit inside the panel, the middle one in front. */
-    .stage { height: 86vw; max-height: 500px; margin-top: 20px; border-radius: 32px; }
-    .stage::before { border-radius: 32px; height: 62%; }
-    .phone.p2 { width: 46%; left: 27%; bottom: -16%; }
-    .phone.p1 { width: 33%; left: 4%; bottom: -22%; }
-    .phone.p3 { width: 33%; right: 4%; bottom: -22%; }
-    .vs { grid-template-columns: 1fr; }
-    .plans { grid-template-columns: 1fr; }
-    .facts { grid-template-columns: 1fr; }
-    .hero { padding: 28px 0 64px; }
-    section.idea { padding: 56px 0; }
+  /* One entrance for the hero phones; sections fade up as they arrive. */
+  @media (prefers-reduced-motion: no-preference) {
+    .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+    .js .reveal.in { opacity: 1; transform: none; }
+    .hero .front { animation: rise .9s .15s cubic-bezier(.2,.7,.2,1) both; }
+    .hero .back { animation: riseBack .9s .3s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateX(-34%) translateY(40px); } }
+    @keyframes riseBack { from { opacity: 0; transform: translateX(-112%) rotate(-7deg) translateY(40px); } }
   }
-  @media (max-width: 520px) {
-    .wrap { padding: 0 18px; }
-    .phone { border-width: 4px; border-radius: 22px; }
-    .phone.p2 { border-radius: 26px; }
-    .vs-card { padding: 22px; }
-    .vs-card li { font-size: 16px; }
-    .note { grid-template-columns: 1fr; gap: 2px; }
+
+  @media (max-width: 980px) {
+    .links { display: none; }
+    .hero-grid { grid-template-columns: 1fr; text-align: center; }
+    .hero h1, .hero .lead { margin-left: auto; margin-right: auto; }
+    .cta-row, .note { justify-content: center; }
+    .stage { height: 560px; max-width: 520px; margin: 0 auto; width: 100%; }
+    .feature, .feature.flip { grid-template-columns: 1fr; gap: 36px; }
+    .feature.flip .shot { order: 0; }
+    .science-card { grid-template-columns: 1fr; padding: 44px 28px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { width: calc(100% - 32px); }
+    .nav { height: 62px; }
+    .hero { padding-top: 32px; }
+    .hero .lead { font-size: 17px; }
+    .stage { height: 470px; }
+    .stage .front { width: 230px; transform: translateX(-20%); }
+    .stage .back { width: 196px; top: 60px; transform: translateX(-90%) rotate(-7deg); }
+    @keyframes rise { from { opacity: 0; transform: translateX(-20%) translateY(40px); } }
+    @keyframes riseBack { from { opacity: 0; transform: translateX(-90%) rotate(-7deg) translateY(40px); } }
+    .phone { border-radius: 36px; padding: 7px; }
+    .phone img { border-radius: 30px; }
+    .block { padding: 84px 0; }
+    .head { margin-bottom: 52px; }
+    .shot { height: 430px; border-radius: 26px; }
+    .shot .phone { width: 230px; top: 40px; }
+    .feature + .feature { margin-top: 80px; }
+    .stats { gap: 8px; }
+    .stat { padding: 14px 10px; }
+    .stat b { font-size: 17px; }
+    .plans { grid-template-columns: 1fr; }
+    .plan { padding: 28px; }
+    .closing-card { padding: 72px 20px; border-radius: 28px; }
+    .foot { flex-direction: column; text-align: center; }
   }
 </style>
+<script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <a class="brand" href="/" aria-label="Spottr home">
+<header id="top">
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Spottr home">
       <svg viewBox="0 0 1024 1024" aria-hidden="true">
         <g transform="translate(-22 22)"><path class="ring" d="M826 410A330 330 0 1 1 410 198L453 331A190 190 0 1 0 693 453Z"/></g>
         <g class="slice"><g transform="translate(27.5 -27.5)"><path d="M677 226A330 330 0 0 1 813 378L686 435A190 190 0 0 0 607 347Z" transform="translate(-22 22)"/></g></g>
       </svg>
       Spottr
     </a>
-    <a class="btn small" href="https://testflight.apple.com/join/yscFgh2B">Get the beta</a>
-  </header>
+    <nav class="links" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#science">Science</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <a class="btn btn-light btn-small" href="https://testflight.apple.com/join/yscFgh2B">Get the beta</a>
+  </div>
+</header>
 
-  <main>
-    <section class="hero">
-      <div class="hero-top">
-        <h1 class="d">Most people never reach their gym goals.</h1>
-        <div class="hero-row">
-          <p class="lead">Spottr tells you what to lift, where you’re stalling, and how to break through.</p>
+<main>
+  <section class="hero">
+    <div class="dots"></div>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="pill"><i></i>Now in beta on iPhone</span>
+        <h1>Most people never reach their gym goals.</h1>
+        <p class="lead">Spottr tells you what to lift, where you’re stalling, and how to break through.</p>
+        <div class="cta-row">
+          <a class="btn btn-orange" href="https://testflight.apple.com/join/yscFgh2B">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.06 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.5zM14.2 6.13c.6-.73 1-1.74.9-2.75-.86.04-1.9.58-2.52 1.3-.55.64-1.04 1.67-.91 2.66.96.07 1.94-.49 2.53-1.21z"/></svg>
+            Join the iPhone beta
+          </a>
+          <a class="btn btn-ghost" href="#features">See how it works</a>
+        </div>
+        <p class="note"><b>Free</b> while in beta · Android coming soon</p>
+      </div>
+      <div class="stage" aria-hidden="true">
+        <div class="glow"></div>
+        <div class="phone back"><img src="img/strength.webp" alt="" width="600" height="1299"></div>
+        <div class="phone front"><img src="img/workout.webp" alt="" width="600" height="1299"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="features">
+    <div class="wrap">
+      <div class="head reveal">
+        <span class="pill"><i></i>Features</span>
+        <h2>Simple to log. <span class="muted">Smart about what comes next.</span></h2>
+        <p>Everything you need between sets. Nothing that slows you down.</p>
+      </div>
+
+      <div class="feature reveal">
+        <div>
+          <div class="num"><span>01</span>Log</div>
+          <h3>Log it between sets, not after.</h3>
+          <p>Your weights carry over from last time. Tick a set and the rest timer starts, right on your Lock Screen.</p>
+          <ul class="ticks">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>The number to beat on every set</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Rest timer on your Lock Screen and Dynamic Island</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>A how-to for all 149 exercises</li>
+          </ul>
+        </div>
+        <div class="shot"><div class="dots"></div><div class="glow"></div><div class="phone"><img src="img/today.webp" alt="Today screen showing the next workout in your split, with the weekly goal ring" width="600" height="1299" loading="lazy"></div></div>
+      </div>
+
+      <div class="feature flip reveal">
+        <div>
+          <div class="num"><span>02</span>Progress</div>
+          <h3>Get stronger, and see it.</h3>
+          <p>Every lift gets an estimated max, so you can watch it climb week by week and know when you’ll hit your next milestone.</p>
+          <ul class="ticks">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Charts for every lift, and your personal records</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Your next milestone, and when you’ll hit it</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Strength levels and muscle balance at a glance</li>
+          </ul>
+        </div>
+        <div class="shot"><div class="dots"></div><div class="glow"></div><div class="phone"><img src="img/progress.webp" alt="Progress screen: Bench Press estimated max up 21 percent over 10 sessions" width="600" height="1299" loading="lazy"></div></div>
+      </div>
+
+      <div class="feature reveal">
+        <div>
+          <div class="num"><span>03</span>Coach</div>
+          <h3>A coach after every workout.</h3>
+          <p>Finish a session and Spottr reviews it: what’s working, what’s stalling and exactly what to lift next time.</p>
+          <ul class="ticks">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>New bests and stalls, caught early</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Targets for your next session</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>A training plan built around your goals</li>
+          </ul>
+        </div>
+        <div class="shot"><div class="dots"></div><div class="glow"></div><div class="phone"><img src="img/review.webp" alt="Workout summary with new personal records and the coach’s review" width="600" height="1299" loading="lazy"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="science" id="science">
+    <div class="wrap">
+      <div class="science-card reveal">
+        <div class="dots"></div>
+        <div>
+          <span class="pill"><i></i>Science-based</span>
+          <h2>Built on research, not gym myths.</h2>
+          <p>Every rep range, rest time and set count in your plan comes from published sports science. You just lift.</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>Reps</b><span>Ranges that build strength and size</span></div>
+          <div class="stat"><b>Rest</b><span>Timed for your goal, not rushed</span></div>
+          <div class="stat"><b>Volume</b><span>Weekly sets that keep you growing</span></div>
         </div>
       </div>
-      <div class="stage">
-        <div class="phone p1"><img src="img/strength.webp" alt="Strength chart: every main lift stronger than three months ago, squat up 18 percent" width="600" height="1299"></div>
-        <div class="phone p3"><img src="img/review.webp" alt="Workout summary with new personal records and the coach's review" width="600" height="1299"></div>
-        <div class="phone p2"><img src="img/workout.webp" alt="Workout screen: logging Bench Press sets with last time's numbers beside each set" width="600" height="1299"></div>
+    </div>
+  </section>
+
+  <section class="block" id="pricing" style="padding-top: 0">
+    <div class="wrap">
+      <div class="head reveal">
+        <span class="pill"><i></i>Pricing</span>
+        <h2>Start for free. Go Pro when you want more.</h2>
       </div>
-    </section>
-
-    <section class="versus" aria-labelledby="h-vs">
-      <h2 class="d" id="h-vs">Stop training on guesswork.</h2>
-      <div class="vs">
-        <div class="vs-card without"><h3>Without Spottr</h3><ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>Guessing what you lifted last week</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>Doing the same workout for months</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>Plateaus you don't notice</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>No idea if any of it is working</span></li></ul></div>
-        <div class="vs-card with"><h3>With Spottr</h3><ul><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--orange)"/><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>The number to beat on every set</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--orange)"/><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>A review and new targets after every session</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--orange)"/><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Stalls caught early, with a fix</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--orange)"/><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Your next milestone, and when you'll hit it</span></li></ul></div>
-      </div>
-    </section>
-
-    <section class="idea" aria-labelledby="h-track">
-      <div>
-        <h2 class="d" id="h-track">Never forget a number again.</h2>
-        <p>Every set you've ever done, one tap away. Your weight carries over and the rest timer starts itself.</p>
-        <p class="lose">No more notes app. No more guessing at the rack.</p>
-      </div>
-      <table class="log">
-        <caption>Leg Day, Monday.</caption>
-        <tbody>
-          <tr><th colspan="2">Squat</th></tr>
-          <tr><td>Set 1</td><td class="n">100 × 5</td></tr>
-          <tr><td>Set 2</td><td class="n">100 × 5</td></tr>
-          <tr class="pr"><td>Set 3, best ever</td><td class="n">105 × 5</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section class="idea" aria-labelledby="h-progress">
-      <div>
-        <h2 class="d" id="h-progress">Get stronger, and see it.</h2>
-        <p>Watch every lift climb week by week, and know when you'll hit your next milestone.</p>
-        <p class="lose">Progress you can see is progress you keep chasing.</p>
-      </div>
-      <svg class="chart" viewBox="0 0 560 300" role="img" aria-label="Bench press estimated max rising from 88 to 99 kilograms over 12 weeks; next milestone 110 kilograms around February">
-        <text class="big" x="0" y="56">99 kg</text>
-        <text class="big goal" x="560" y="56" text-anchor="end">110 kg</text>
-        <text class="note" x="0" y="84">Bench Press, estimated max</text>
-        <text class="note" x="560" y="84" text-anchor="end">Next milestone, around February</text>
-        <g class="grid"><line x1="0" y1="140" x2="560" y2="140"/><line x1="0" y1="200" x2="560" y2="200"/><line x1="0" y1="260" x2="560" y2="260"/></g>
-        <text class="axis" x="560" y="134" text-anchor="end">100</text>
-        <text class="axis" x="560" y="194" text-anchor="end">93</text>
-        <text class="axis" x="560" y="254" text-anchor="end">86</text>
-        <polyline class="line" points="0,236 43,231 85,222 128,226 170,213 213,205 256,207 298,192 341,183 383,186 426,166 469,158 500,149"/>
-        <circle class="dot" cx="500" cy="149" r="7"/>
-        <text class="axis" x="0" y="290">Aug</text>
-        <text class="axis" x="250" y="290" text-anchor="middle">Sep</text>
-        <text class="axis" x="500" y="290" text-anchor="end">Nov</text>
-      </svg>
-    </section>
-
-    <section class="idea" aria-labelledby="h-coach">
-      <div>
-        <h2 class="d" id="h-coach">Insights that make you better.</h2>
-        <p>After every workout Spottr shows what's working, what's stalling and what to change.</p>
-        <p class="lose">Every session without it is a session you can't learn from.</p>
-      </div>
-      <div class="review" role="group" aria-label="Example review after a leg workout">
-        <div class="note"><span class="k win">New best</span><div><b>Squat, 105 × 5</b><span>Your estimated max is up 6 kg in four weeks.</span></div></div>
-        <div class="note"><span class="k">Stalled</span><div><b>Romanian Deadlift, stuck at 90 kg</b><span>Three sessions in a row. Try 80 kg for sets of 10, then build back up.</span></div></div>
-        <div class="note"><span class="k">Next time</span><div><b>Squat 105 × 6</b><span>One more rep before you add weight.</span></div></div>
-      </div>
-    </section>
-
-
-
-    <section class="science" aria-labelledby="h-sci">
-      <h2 class="d" id="h-sci">Built on research, not gym myths.</h2>
-      <p>Every rep range, rest time and set count in your plan comes from published sports science. You just lift.</p>
-    </section>
-
-    <section class="idea" aria-labelledby="h-plans" style="display: block">
-      <h2 class="d" id="h-plans" style="max-width: 10em">Free to use. Pro when you want more.</h2>
-      <div class="plans">
+      <div class="plans reveal">
         <div class="plan">
-          <h3 class="d">Free</h3>
-          <p class="sub">Everything you need to train.</p>
-          <ul>
-            <li>Logging and rest timer</li>
-            <li>Progress charts and personal records</li>
-            <li>How-tos for 149 exercises</li>
+          <h3>Free</h3>
+          <div class="price">€0</div>
+          <p>Everything you need to train.</p>
+          <ul class="ticks">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited workout logging</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Rest timer, right on your Lock Screen</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Progress charts and personal records</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>How-tos for 149 exercises</li>
           </ul>
+          <a class="btn btn-ghost" href="https://testflight.apple.com/join/yscFgh2B">Get started</a>
         </div>
         <div class="plan pro">
-          <h3 class="d">Pro</h3>
-          <p class="sub">Free for everyone during the beta.</p>
-          <ul>
-            <li>Every insight, after every workout</li>
-            <li>Milestone forecasts and strength levels</li>
-            <li>A plan built for your goal, all your history</li>
+          <h3>Pro <span class="badge">Free in beta</span></h3>
+          <div class="price">€0 <small>during the beta</small></div>
+          <p>For lifters who want a coach in their pocket.</p>
+          <ul class="ticks">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>The full coach review after every workout</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>A plan built for your goals</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Milestone forecasts and strength levels</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>All your history, unlimited routines</li>
           </ul>
+          <a class="btn btn-orange" href="https://testflight.apple.com/join/yscFgh2B">Try Pro free</a>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="simple" aria-labelledby="h-simple">
-      <h2 class="d" id="h-simple">Simple on purpose.</h2>
-      <p>No account needed. Your workouts stay on your phone.</p>
-      <a class="btn" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a>
-    </section>
-  </main>
+  <section class="closing">
+    <div class="wrap">
+      <div class="closing-card reveal">
+        <div class="dots"></div>
+        <div class="glow"></div>
+        <h2>Less guessing. More progress.</h2>
+        <p>Your next PR is one workout away.</p>
+        <div class="cta-row">
+          <a class="btn btn-light" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
-  <footer>
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#top" aria-label="Back to top">
+      <svg viewBox="0 0 1024 1024" aria-hidden="true">
+        <g transform="translate(-22 22)"><path class="ring" d="M826 410A330 330 0 1 1 410 198L453 331A190 190 0 1 0 693 453Z"/></g>
+        <g transform="translate(27.5 -27.5)"><path class="slice" d="M677 226A330 330 0 0 1 813 378L686 435A190 190 0 0 0 607 347Z" transform="translate(-22 22)"/></g>
+      </svg>
+      Spottr
+    </a>
+    <nav aria-label="Footer"><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="privacy/">Privacy</a></nav>
     <span>© 2026 Spottr</span>
-    <nav aria-label="Footer"><a href="privacy/">Privacy</a></nav>
-  </footer>
-</div>
+  </div>
+</footer>
 
+<script>
+  // Header hairline once scrolled; sections fade up as they arrive.
+  const header = document.querySelector('header');
+  addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 8), { passive: true });
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' }) : null;
+  document.querySelectorAll('.reveal').forEach((el) => io ? io.observe(el) : el.classList.add('in'));
+</script>
 </body>
 </html>
