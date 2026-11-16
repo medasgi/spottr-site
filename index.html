@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spottr: Gym Workout Tracker for iPhone</title>
-<meta name="description" content="Spottr logs every set in a couple of taps, shows what you lifted last time, and tracks your strength week by week. No account. Your workouts stay on your iPhone.">
+<meta name="description" content="Spottr logs every set in a couple of taps, shows the number to beat, and reviews every workout like a coach. No account. Your workouts stay on your iPhone.">
 <meta name="theme-color" content="#E6E8EA" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#060507" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="Spottr: know what to lift next">
@@ -93,6 +93,45 @@
   .beat-line b { font-size: clamp(40px, 5vw, 56px); }
   .beat-line.target b { color: var(--orange); }
 
+
+  /* Coach review: one line per note, a short coloured word says what kind. */
+  .review { display: grid; gap: 0; }
+  .note { display: grid; grid-template-columns: 5.5em 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--plate); }
+  .note:first-child { border-top: 2px solid var(--ink); }
+  .note .k { font: 600 13px/1.9 var(--text); color: var(--graphite); }
+  .note .k.win { color: var(--orange); }
+  .note b { display: block; font: 600 17px/1.35 var(--text); color: var(--ink); }
+  .note span { display: block; font-size: 15px; color: var(--graphite); margin-top: 2px; }
+  .review small { padding-top: 14px; font-size: 14px; color: var(--graphite); }
+
+  /* How-to figure: the same pictogram the app draws, posed from its skeleton. */
+  .howto { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 28px; align-items: center; }
+  .fig { width: 100%; height: auto; display: block; }
+  .fig line { stroke-linecap: round; }
+  .fig .floor { stroke: var(--plate); stroke-width: 2; }
+  .fig .ghost line { stroke: var(--ink); opacity: 0.08; stroke-linecap: round; }
+  .fig .ghost circle { fill: var(--ink); opacity: 0.08; }
+  .fig .b { stroke: var(--ink); }
+  .fig .head { fill: var(--ink); }
+  .fig .plate { fill: var(--orange); }
+  .steps { margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 2em 1fr; padding: 11px 0; border-bottom: 1px solid var(--plate); font-size: 15px; color: var(--graphite); }
+  .steps li::before { content: counter(s); font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 20px; line-height: 1.2; color: var(--ink); }
+  .steps .tip { display: block; grid-template-columns: none; color: var(--ink); font-weight: 500; }
+  .steps .tip::before { content: none; }
+
+  /* Free and Pro side by side. */
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .plan { padding: 26px 26px 22px; border-radius: 28px; background: var(--surface); }
+  .plan.pro { background: var(--ink); color: var(--page); }
+  .plan h3 { font-size: 44px; margin: 0 0 4px; }
+  .plan .sub { margin: 0 0 16px; font-size: 14px; color: var(--graphite); }
+  .plan.pro .sub { color: var(--plate); }
+  .plan ul { margin: 0; padding: 0; list-style: none; }
+  .plan li { padding: 9px 0; border-top: 1px solid var(--plate); font-size: 15px; }
+  .plan.pro li { border-color: rgba(255,255,255,0.14); }
+  @media (prefers-color-scheme: dark) { .plan.pro li { border-color: rgba(6,5,7,0.14); } }
+
   .simple { padding: 96px 0 72px; border-top: 1px solid var(--plate); }
   .simple h2 { font-size: clamp(56px, 9vw, 116px); margin: 0 0 28px; max-width: 9em; }
   .nots { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 40px; padding: 0; list-style: none; }
@@ -104,11 +143,15 @@
 
   @media (max-width: 860px) {
     section.idea { grid-template-columns: 1fr; gap: 36px; }
+    .plans { grid-template-columns: 1fr; }
     .hero { padding: 28px 0 64px; }
     section.idea { padding: 56px 0; }
   }
   @media (max-width: 520px) {
     .wrap { padding: 0 18px; }
+    .howto { grid-template-columns: 1fr; }
+    .fig { max-width: 200px; }
+    .note { grid-template-columns: 1fr; gap: 2px; }
   }
 </style>
 </head>
@@ -129,7 +172,7 @@
     <section class="hero">
       <div>
         <h1 class="d">Know what to lift next.</h1>
-        <p class="lead">Spottr is a gym tracker for iPhone. It logs every set in a couple of taps, shows what you did last time, and tracks your strength week by week.</p>
+        <p class="lead">Spottr is a gym tracker for iPhone. It logs every set in a couple of taps, shows you the number to beat, and reviews every workout like a coach would.</p>
         <a class="btn" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a>
         <p class="meta">Free on TestFlight while we finish it for the App Store.</p>
       </div>
@@ -138,7 +181,8 @@
     <section class="idea" aria-labelledby="h-track">
       <div>
         <h2 class="d" id="h-track">Log it between sets, not after.</h2>
-        <p>Your weight carries over from the last set. Nudge it up or down, tick, and the rest timer starts. It keeps counting on your Lock Screen, and buzzes when it's time to go again.</p>
+        <p>Your weight carries over from the last set. Nudge it up or down, tick, and the rest timer starts. It keeps counting on your Lock Screen and in the Dynamic Island, and buzzes when it's time to go again.</p>
+        <p style="margin-top: 14px">Forgot to log one? Tap any past day and add it there, with the time you trained.</p>
       </div>
       <table class="log">
         <caption>Leg Day, Monday. 5 exercises, 52 minutes.</caption>
@@ -174,6 +218,35 @@
       </svg>
     </section>
 
+    <section class="idea" aria-labelledby="h-coach">
+      <div>
+        <h2 class="d" id="h-coach">A review after every workout.</h2>
+        <p>Finish a session and Spottr tells you what went well, what's stalling and what to lift next time. It works it out on your phone from your own history. No chatbot, and nothing gets sent anywhere.</p>
+      </div>
+      <div class="review" role="group" aria-label="Example review after a leg workout">
+        <div class="note"><span class="k win">New best</span><div><b>Squat, 105 × 5</b><span>Your estimated max is up 6 kg in four weeks.</span></div></div>
+        <div class="note"><span class="k win">On track</span><div><b>120 kg squat around February</b><span>If you keep adding weight at this pace.</span></div></div>
+        <div class="note"><span class="k">Stalled</span><div><b>Romanian Deadlift, stuck at 90 kg</b><span>Three sessions in a row. Try 80 kg for sets of 10, then build back up.</span></div></div>
+        <div class="note"><span class="k">Next time</span><div><b>Squat 105 × 6 · RDL 90 × 9</b><span>One more rep before you add weight.</span></div></div>
+      </div>
+    </section>
+
+    <section class="idea" aria-labelledby="h-howto">
+      <div>
+        <h2 class="d" id="h-howto">Not sure how? It shows you.</h2>
+        <p>All 149 exercises come with a how-to: a moving figure of the full rep, three short steps and a tip. Tap the info button next to any exercise, even halfway through a workout.</p>
+      </div>
+      <div class="howto">
+        <svg class="fig" viewBox="40 20 130 172" role="img" aria-label="Animated figure doing a back squat: sit down and back, then drive up"><line class="floor" x1="40" y1="183" x2="170" y2="183"/><g class="ghost"><line x1="100.2" y1="103.2" x2="75.6" y2="139.7" stroke-width="15"/><line x1="75.6" y1="139.7" x2="113.0" y2="146.3" stroke-width="10"/><line x1="113.0" y1="146.3" x2="100.0" y2="182.0" stroke-width="10"/><line x1="100.2" y1="103.2" x2="76.3" y2="117.8" stroke-width="8"/><line x1="76.3" y1="117.8" x2="92.2" y2="97.2" stroke-width="8"/><circle cx="113.0" cy="84.1" r="11"/></g><g class="body"><circle class="plate" r="11" cx="98.0" cy="58.0"><animate attributeName="cx" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="98.0;98.0;98.0;98.0;97.8;97.1;96.0;94.8;93.7;93.0;93.1;93.9;95.2;96.7;97.8;98.2;98.2;98.2;98.2;98.2;97.8;96.7;95.2;93.9;93.1;93.0;93.7;94.8;96.0;97.1;97.8;98.0"/><animate attributeName="cy" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="58.0;58.0;58.0;58.0;58.0;58.2;59.0;60.9;64.4;69.4;75.7;82.6;89.1;94.5;98.0;99.2;99.2;99.2;99.2;99.2;98.0;94.5;89.1;82.6;75.7;69.4;64.4;60.9;59.0;58.2;58.0;58.0"/></circle><line class="b" stroke-width="10" x1="100.0" y1="106.0" x2="100.0" y2="144.0"><animate attributeName="x1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;99.3;97.3;94.2;90.3;86.1;82.2;79.0;76.9;75.9;75.5;75.5;75.6;75.6;75.6;75.6;75.6;75.5;75.5;75.9;76.9;79.0;82.2;86.1;90.3;94.2;97.3;99.3;100.0"/><animate attributeName="y1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="106.0;106.0;106.0;106.0;106.0;106.2;106.8;108.4;111.3;115.5;120.7;126.3;131.6;135.9;138.7;139.7;139.7;139.7;139.7;139.7;138.7;135.9;131.6;126.3;120.7;115.5;111.3;108.4;106.8;106.2;106.0;106.0"/><animate attributeName="x2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;100.2;100.9;101.9;103.3;104.9;106.6;108.3;109.8;111.2;112.2;112.8;113.0;113.0;113.0;113.0;113.0;112.8;112.2;111.2;109.8;108.3;106.6;104.9;103.3;101.9;100.9;100.2;100.0"/><animate attributeName="y2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="144.0;144.0;144.0;144.0;144.0;144.0;144.0;144.1;144.3;144.6;144.9;145.3;145.7;146.0;146.2;146.3;146.3;146.3;146.3;146.3;146.2;146.0;145.7;145.3;144.9;144.6;144.3;144.1;144.0;144.0;144.0;144.0"/></line><line class="b" stroke-width="10" x1="100.0" y1="144.0" x2="100.0" y2="182.0"><animate attributeName="x1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;100.2;100.9;101.9;103.3;104.9;106.6;108.3;109.8;111.2;112.2;112.8;113.0;113.0;113.0;113.0;113.0;112.8;112.2;111.2;109.8;108.3;106.6;104.9;103.3;101.9;100.9;100.2;100.0"/><animate attributeName="y1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="144.0;144.0;144.0;144.0;144.0;144.0;144.0;144.1;144.3;144.6;144.9;145.3;145.7;146.0;146.2;146.3;146.3;146.3;146.3;146.3;146.2;146.0;145.7;145.3;144.9;144.6;144.3;144.1;144.0;144.0;144.0;144.0"/><animate attributeName="x2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0"/><animate attributeName="y2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0"/></line><line class="b" stroke-width="7" x1="100.0" y1="182.0" x2="111.0" y2="182.0"><animate attributeName="x1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.0"/><animate attributeName="y1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0"/><animate attributeName="x2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0;111.0"/><animate attributeName="y2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0;182.0"/></line><line class="b" stroke-width="15" x1="100.0" y1="62.0" x2="100.0" y2="106.0"><animate attributeName="x1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;99.8;99.1;98.0;96.8;95.7;95.0;95.1;95.9;97.2;98.7;99.8;100.2;100.2;100.2;100.2;100.2;99.8;98.7;97.2;95.9;95.1;95.0;95.7;96.8;98.0;99.1;99.8;100.0"/><animate attributeName="y1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="62.0;62.0;62.0;62.0;62.0;62.2;63.0;64.9;68.4;73.4;79.7;86.6;93.1;98.5;102.0;103.2;103.2;103.2;103.2;103.2;102.0;98.5;93.1;86.6;79.7;73.4;68.4;64.9;63.0;62.2;62.0;62.0"/><animate attributeName="x2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;99.3;97.3;94.2;90.3;86.1;82.2;79.0;76.9;75.9;75.5;75.5;75.6;75.6;75.6;75.6;75.6;75.5;75.5;75.9;76.9;79.0;82.2;86.1;90.3;94.2;97.3;99.3;100.0"/><animate attributeName="y2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="106.0;106.0;106.0;106.0;106.0;106.2;106.8;108.4;111.3;115.5;120.7;126.3;131.6;135.9;138.7;139.7;139.7;139.7;139.7;139.7;138.7;135.9;131.6;126.3;120.7;115.5;111.3;108.4;106.8;106.2;106.0;106.0"/></line><line class="b" stroke-width="8" x1="100.0" y1="62.0" x2="76.1" y2="76.6"><animate attributeName="x1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;99.8;99.1;98.0;96.8;95.7;95.0;95.1;95.9;97.2;98.7;99.8;100.2;100.2;100.2;100.2;100.2;99.8;98.7;97.2;95.9;95.1;95.0;95.7;96.8;98.0;99.1;99.8;100.0"/><animate attributeName="y1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="62.0;62.0;62.0;62.0;62.0;62.2;63.0;64.9;68.4;73.4;79.7;86.6;93.1;98.5;102.0;103.2;103.2;103.2;103.2;103.2;102.0;98.5;93.1;86.6;79.7;73.4;68.4;64.9;63.0;62.2;62.0;62.0"/><animate attributeName="x2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="76.1;76.1;76.1;76.1;75.8;75.2;74.1;72.9;71.8;71.1;71.2;72.0;73.3;74.7;75.8;76.3;76.3;76.3;76.3;76.3;75.8;74.7;73.3;72.0;71.2;71.1;71.8;72.9;74.1;75.2;75.8;76.1"/><animate attributeName="y2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="76.6;76.6;76.6;76.6;76.6;76.8;77.6;79.5;82.9;87.9;94.3;101.1;107.7;113.1;116.6;117.8;117.8;117.8;117.8;117.8;116.6;113.1;107.7;101.1;94.3;87.9;82.9;79.5;77.6;76.8;76.6;76.6"/></line><line class="b" stroke-width="8" x1="76.1" y1="76.6" x2="92.0" y2="56.0"><animate attributeName="x1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="76.1;76.1;76.1;76.1;75.8;75.2;74.1;72.9;71.8;71.1;71.2;72.0;73.3;74.7;75.8;76.3;76.3;76.3;76.3;76.3;75.8;74.7;73.3;72.0;71.2;71.1;71.8;72.9;74.1;75.2;75.8;76.1"/><animate attributeName="y1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="76.6;76.6;76.6;76.6;76.6;76.8;77.6;79.5;82.9;87.9;94.3;101.1;107.7;113.1;116.6;117.8;117.8;117.8;117.8;117.8;116.6;113.1;107.7;101.1;94.3;87.9;82.9;79.5;77.6;76.8;76.6;76.6"/><animate attributeName="x2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="92.0;92.0;92.0;92.0;91.8;91.1;90.0;88.8;87.7;87.0;87.1;87.9;89.2;90.7;91.8;92.2;92.2;92.2;92.2;92.2;91.8;90.7;89.2;87.9;87.1;87.0;87.7;88.8;90.0;91.1;91.8;92.0"/><animate attributeName="y2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="56.0;56.0;56.0;56.0;56.0;56.2;57.0;58.9;62.4;67.4;73.7;80.6;87.1;92.5;96.0;97.2;97.2;97.2;97.2;97.2;96.0;92.5;87.1;80.6;73.7;67.4;62.4;58.9;57.0;56.2;56.0;56.0"/></line><line class="b" stroke-width="4" x1="100.0" y1="56.0" x2="100.0" y2="39.0"><animate attributeName="x1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;99.8;99.3;98.6;97.7;97.0;96.8;97.3;98.5;100.1;101.8;103.1;103.5;103.5;103.5;103.5;103.5;103.1;101.8;100.1;98.5;97.3;96.8;97.0;97.7;98.6;99.3;99.8;100.0"/><animate attributeName="y1" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="56.0;56.0;56.0;56.0;56.0;56.2;57.0;59.0;62.5;67.7;74.1;81.2;87.9;93.4;97.0;98.2;98.2;98.2;98.2;98.2;97.0;93.4;87.9;81.2;74.1;67.7;62.5;59.0;57.0;56.2;56.0;56.0"/><animate attributeName="x2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.2;100.7;101.8;103.5;105.8;108.4;110.7;112.4;113.0;113.0;113.0;113.0;113.0;112.4;110.7;108.4;105.8;103.5;101.8;100.7;100.2;100.0;100.0;100.0;100.0"/><animate attributeName="y2" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="39.0;39.0;39.0;39.0;39.0;39.2;40.1;42.2;45.9;51.4;58.3;65.8;73.0;78.9;82.8;84.1;84.1;84.1;84.1;84.1;82.8;78.9;73.0;65.8;58.3;51.4;45.9;42.2;40.1;39.2;39.0;39.0"/></line><circle class="head" r="11" cx="100.0" cy="39.0"><animate attributeName="cx" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="100.0;100.0;100.0;100.0;100.0;100.0;100.0;100.2;100.7;101.8;103.5;105.8;108.4;110.7;112.4;113.0;113.0;113.0;113.0;113.0;112.4;110.7;108.4;105.8;103.5;101.8;100.7;100.2;100.0;100.0;100.0;100.0"/><animate attributeName="cy" dur="3.2s" repeatCount="indefinite" keyTimes="0.0000;0.0323;0.0645;0.0968;0.1290;0.1613;0.1935;0.2258;0.2581;0.2903;0.3226;0.3548;0.3871;0.4194;0.4516;0.4839;0.5161;0.5484;0.5806;0.6129;0.6452;0.6774;0.7097;0.7419;0.7742;0.8065;0.8387;0.8710;0.9032;0.9355;0.9677;1.0000" values="39.0;39.0;39.0;39.0;39.0;39.2;40.1;42.2;45.9;51.4;58.3;65.8;73.0;78.9;82.8;84.1;84.1;84.1;84.1;84.1;82.8;78.9;73.0;65.8;58.3;51.4;45.9;42.2;40.1;39.2;39.0;39.0"/></circle></g></svg>
+        <ol class="steps" aria-label="Back squat">
+          <li>Bar on your upper back, feet shoulder-width apart.</li>
+          <li>Sit down and back until your thighs are level.</li>
+          <li>Drive up through the whole foot.</li>
+          <li class="tip">Tip: keep your chest up and your knees in line with your toes.</li>
+        </ol>
+      </div>
+    </section>
+
     <section class="idea" aria-labelledby="h-guess">
       <div>
         <h2 class="d" id="h-guess">No more guessing.</h2>
@@ -183,6 +256,36 @@
         <div class="beat-line"><span>Up next in your split</span><b class="d">Push A</b></div>
         <div class="beat-line"><span>Overhead Press, last time</span><b class="d">50 × 7</b></div>
         <div class="beat-line target"><span>Beat it with</span><b class="d">52.5 × 6</b></div>
+      </div>
+    </section>
+
+    <section class="idea" aria-labelledby="h-plans" style="display: block">
+      <h2 class="d" id="h-plans" style="max-width: 10em">Free to use. Pro when you want more.</h2>
+      <div class="plans">
+        <div class="plan">
+          <h3 class="d">Free</h3>
+          <p class="sub">Everything you need to train.</p>
+          <ul>
+            <li>Log sets, cardio and rest times</li>
+            <li>Up to 7 routines and a weekly split</li>
+            <li>Progress charts and personal records</li>
+            <li>Your last 6 months of history</li>
+            <li>How-tos for every exercise</li>
+            <li>One-rep max calculator</li>
+          </ul>
+        </div>
+        <div class="plan pro">
+          <h3 class="d">Pro</h3>
+          <p class="sub">Free for everyone during the beta.</p>
+          <ul>
+            <li>The full review after every workout</li>
+            <li>When you'll hit your next milestone</li>
+            <li>A plan built for your goal</li>
+            <li>Strength levels for your body weight</li>
+            <li>Muscle balance and what to work on</li>
+            <li>All your history and unlimited routines</li>
+          </ul>
+        </div>
       </div>
     </section>
 
