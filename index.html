@@ -3,64 +3,319 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spottr: Gym Workout Tracker</title>
-<meta name="description" content="Spottr is a gym tracker that gets out of your way. Log sets in seconds, follow your weekly routine, and watch your strength grow. Everything stays on your phone.">
-<meta name="theme-color" content="#060507">
-<meta property="og:title" content="Spottr: One more rep.">
-<meta property="og:description" content="A gym tracker that gets out of your way. Log sets in seconds. Your data stays on your phone.">
+<title>Spottr: Gym Workout Tracker for iPhone</title>
+<meta name="description" content="Spottr logs every set in a couple of taps, shows what you lifted last time, and tracks your strength week by week. No account. Your workouts stay on your iPhone.">
+<meta name="theme-color" content="#E6E8EA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#060507" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Spottr: know what to lift next">
+<meta property="og:description" content="A gym tracker that logs every set, shows the number to beat, and tracks your progress. Free on iPhone.">
 <meta property="og:image" content="https://spottr.me/icon-512.png">
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icon-180.png">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-  :root { --bg: #EDEEEF; --ink: #060507; --muted: #5C6064; --card: #FFFFFF; --accent: #F74B01; --line: rgba(6,5,7,0.08); }
-  @media (prefers-color-scheme: dark) { :root { --bg: #060507; --ink: #F2F3F4; --muted: #A5AAAE; --card: #1C1B1F; --accent: #FF5714; --line: rgba(242,243,244,0.08); } }
+  /* Fonts are served from this site: no requests to Google or anyone else. Both are SIL Open Font License. */
+  @font-face { font-family: 'Archivo'; src: url(fonts/archivo.woff2) format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+  @font-face { font-family: 'Plus Jakarta Sans'; src: url(fonts/jakarta-400.woff2) format('woff2'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Plus Jakarta Sans'; src: url(fonts/jakarta-500.woff2) format('woff2'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Plus Jakarta Sans'; src: url(fonts/jakarta-600.woff2) format('woff2'); font-weight: 600; font-display: swap; }
+  :root {
+    --page: #E6E8EA;       /* light Seal Grey */
+    --plate: #CBCFD2;      /* Seal Grey: hairlines, idle controls */
+    --ink: #060507;        /* Galaxy Black */
+    --graphite: #4A4E53;
+    --surface: #FFFFFF;
+    --orange: #F74B01;     /* Sunrise Orange: only for actions and wins */
+    --display: 'Archivo', 'Arial Narrow', system-ui, sans-serif;
+    --text: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --page: #060507; --plate: #2C2E32; --ink: #EEF0F1; --graphite: #A3A8AC; --surface: #141417; --orange: #FF5714; }
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.55 'Plus Jakarta Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-  main { max-width: 760px; margin: 0 auto; padding: 32px 22px 56px; }
-  nav { display: flex; align-items: center; justify-content: space-between; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; color: inherit; text-decoration: none; }
-  .brand img { width: 34px; height: 34px; border-radius: 9px; }
-  .hero { padding: 72px 0 40px; }
-  h1 { font-size: clamp(44px, 9vw, 76px); line-height: 1; letter-spacing: -2.5px; font-weight: 700; margin: 0 0 18px; }
-  h1 span { color: var(--accent); }
-  .lead { font-size: 20px; color: var(--muted); max-width: 520px; margin: 0 0 32px; }
-  .cta { display: inline-flex; align-items: center; gap: 10px; height: 54px; padding: 0 26px; border-radius: 27px; background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; font-size: 16px; }
-  .cta:active { transform: scale(0.98); }
-  .note { font-size: 13px; color: var(--muted); margin-top: 12px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 40px 0; }
-  .card { background: var(--card); border-radius: 24px; padding: 22px; }
-  .card h3 { margin: 0 0 6px; font-size: 17px; }
-  .card p { margin: 0; color: var(--muted); font-size: 15px; }
-  .num { color: var(--accent); font-weight: 700; font-size: 13px; letter-spacing: 1px; margin-bottom: 10px; }
-  footer { border-top: 1px solid var(--line); padding-top: 22px; display: flex; gap: 20px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
-  footer a { color: inherit; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 400 17px/1.6 var(--text); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; border-radius: 6px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* Display type: condensed and heavy, like numbers stamped on a plate. */
+  .d { font-family: var(--display); font-stretch: 72%; font-weight: 850; letter-spacing: -0.01em; line-height: 0.92; font-variant-numeric: tabular-nums; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-stretch: 85%; font-weight: 800; font-size: 22px; letter-spacing: -0.01em; }
+  .brand svg { width: 34px; height: 34px; }
+  .ring { fill: var(--ink); }
+  .slice { fill: var(--orange); transform-box: view-box; transform-origin: 47.85% 52.15%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .brand .slice { animation: swing 900ms 250ms both; }
+  }
+  @keyframes swing {
+    0% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.2,.7,.3,1); }
+    25% { transform: rotate(-48deg); animation-timing-function: cubic-bezier(.55,0,.9,.4); }
+    55% { transform: rotate(6deg); animation-timing-function: ease-out; }
+    72% { transform: rotate(-3deg); }
+    86% { transform: rotate(1deg); }
+    100% { transform: rotate(0deg); }
+  }
+  .btn { display: inline-flex; align-items: center; justify-content: center; height: 52px; padding: 0 26px; border-radius: 26px; background: var(--ink); color: var(--page); font: 600 16px var(--text); text-decoration: none; transition: transform 80ms; }
+  .btn:active { transform: scale(0.97); }
+  .btn.small { height: 42px; padding: 0 18px; font-size: 14px; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; padding: 56px 0 96px; }
+  h1 { font-size: clamp(64px, 10.5vw, 132px); margin: 0 0 26px; }
+  .lead { font-size: 19px; color: var(--graphite); max-width: 30em; margin: 0 0 30px; }
+  .meta { font-size: 14px; color: var(--graphite); margin: 14px 0 0; }
+
+  /* The live set: the one thing on the page you can play with. */
+  .set { background: var(--surface); border-radius: 32px; padding: 28px; }
+  .set-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .set-head h2 { font-size: 34px; margin: 0; }
+  .set-head span { font-size: 14px; color: var(--graphite); }
+  .last { margin: 18px 0 6px; font-size: 15px; color: var(--graphite); }
+  .last b { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 20px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+  .hero > *, section.idea > * { min-width: 0; }
+  .field { flex: 1 1 0; min-width: 0; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; height: 92px; border-radius: 22px; background: var(--page); }
+  .field output { text-align: center; font-size: 56px; }
+  .field small { display: block; font: 500 12px var(--text); color: var(--graphite); margin-top: 2px; letter-spacing: 0; }
+  .x { font-family: var(--display); font-weight: 700; font-size: 26px; color: var(--graphite); }
+  .nudge { width: 44px; height: 44px; border: 0; border-radius: 22px; background: none; color: var(--ink); font: 500 26px var(--text); cursor: pointer; }
+  .nudge:active { background: var(--plate); }
+  .tick { width: 92px; height: 92px; flex: none; border: 0; border-radius: 26px; background: var(--plate); color: var(--surface); cursor: pointer; display: grid; place-items: center; transition: background 160ms, transform 80ms; }
+  .tick:active { transform: scale(0.95); }
+  .tick svg { width: 38px; height: 38px; }
+  .tick[aria-pressed="true"] { background: var(--orange); }
+  .verdict { min-height: 56px; margin: 18px 0 0; font-size: 16px; color: var(--graphite); }
+  .verdict strong { color: var(--ink); font-weight: 600; }
+  .verdict .win { color: var(--orange); }
+  .rest { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink); }
+
+  /* Four ideas: a statement beside a real example. */
+  section.idea { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: start; padding: 72px 0; border-top: 1px solid var(--plate); }
+  .idea h2 { font-size: clamp(44px, 6vw, 72px); margin: 0 0 18px; }
+  .idea p { color: var(--graphite); margin: 0; max-width: 28em; }
+
+  .log { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .log th { text-align: left; font: 600 18px var(--text); padding: 18px 0 8px; }
+  .log td { padding: 9px 0; border-bottom: 1px solid var(--plate); color: var(--graphite); font-size: 15px; }
+  .log td.n { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 22px; color: var(--ink); text-align: right; }
+  .log tr.pr td.n { color: var(--orange); }
+  .log caption { caption-side: bottom; text-align: left; padding-top: 14px; font-size: 14px; color: var(--graphite); }
+
+  .chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .chart .grid line { stroke: var(--plate); }
+  .chart .axis { fill: var(--graphite); font: 500 12px var(--text); }
+  .chart .line { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .dot { fill: var(--orange); }
+  .chart .big { fill: var(--ink); font-family: var(--display); font-stretch: 72%; font-weight: 850; font-size: 64px; }
+  .chart .note { fill: var(--graphite); font: 500 14px var(--text); }
+
+  .beat { display: grid; gap: 14px; }
+  .beat-line { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--plate); }
+  .beat-line span { color: var(--graphite); font-size: 15px; }
+  .beat-line b { font-size: clamp(40px, 5vw, 56px); }
+  .beat-line.target b { color: var(--orange); }
+
+  .simple { padding: 96px 0 72px; border-top: 1px solid var(--plate); }
+  .simple h2 { font-size: clamp(56px, 9vw, 116px); margin: 0 0 28px; max-width: 9em; }
+  .nots { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 40px; padding: 0; list-style: none; }
+  .nots li { padding: 10px 18px; border: 1.5px solid var(--plate); border-radius: 999px; font-weight: 500; font-size: 15px; }
+  .simple p { color: var(--graphite); max-width: 34em; margin: 0 0 32px; }
+
+  footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 28px 0 40px; border-top: 1px solid var(--plate); font-size: 14px; color: var(--graphite); }
+  footer nav { display: flex; gap: 22px; }
+
+  @media (max-width: 860px) {
+    .hero, section.idea { grid-template-columns: 1fr; gap: 36px; }
+    .hero { padding: 28px 0 64px; }
+    section.idea { padding: 56px 0; }
+  }
+  @media (max-width: 520px) {
+    .wrap { padding: 0 18px; }
+    .set { padding: 20px; border-radius: 28px; }
+    .row { flex-wrap: wrap; }
+    .field { height: 84px; grid-template-columns: 38px 1fr 38px; }
+    .field output { font-size: 42px; }
+    .nudge { width: 38px; }
+    .tick { width: 100%; height: 60px; border-radius: 20px; }
+    .tick svg { width: 30px; height: 30px; }
+    .x { font-size: 20px; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <nav>
-    <a class="brand" href="/"><img src="icon-180.png" alt="">Spottr</a>
-  </nav>
+<div class="wrap">
+  <header>
+    <a class="brand" href="/" aria-label="Spottr home">
+      <svg viewBox="0 0 1024 1024" aria-hidden="true">
+        <g transform="translate(-22 22)"><path class="ring" d="M826 410A330 330 0 1 1 410 198L453 331A190 190 0 1 0 693 453Z"/></g>
+        <g class="slice"><g transform="translate(27.5 -27.5)"><path d="M677 226A330 330 0 0 1 813 378L686 435A190 190 0 0 0 607 347Z" transform="translate(-22 22)"/></g></g>
+      </svg>
+      Spottr
+    </a>
+    <a class="btn small" href="https://testflight.apple.com/join/yscFgh2B">Get the beta</a>
+  </header>
 
-  <section class="hero">
-    <h1>One more <span>rep.</span></h1>
-    <p class="lead">A gym tracker that gets out of your way. Log sets in seconds, follow your weekly routine, and watch your strength grow.</p>
-    <a class="cta" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a>
-    <p class="note">Free on TestFlight. Coming to the App Store soon.</p>
-  </section>
+  <main>
+    <section class="hero">
+      <div>
+        <h1 class="d">Know what to lift next.</h1>
+        <p class="lead">Spottr is a gym tracker for iPhone. It logs every set in a couple of taps, shows what you did last time, and tracks your strength week by week.</p>
+        <a class="btn" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a>
+        <p class="meta">Free on TestFlight while we finish it for the App Store.</p>
+      </div>
 
-  <section class="grid">
-    <div class="card"><div class="num">01</div><h3>Log in seconds</h3><p>Weight carries forward, quick −/+ nudges, and one tap to tick a set.</p></div>
-    <div class="card"><div class="num">02</div><h3>Your weekly split</h3><p>Up next is always ready, with a short warm-up for the muscles you train.</p></div>
-    <div class="card"><div class="num">03</div><h3>Rest that nudges you</h3><p>A rest timer that tells you when it's time, even with your phone locked.</p></div>
-    <div class="card"><div class="num">04</div><h3>Private by design</h3><p>No account, no tracking. Your workouts stay on your phone.</p></div>
-  </section>
+      <div class="set" role="group" aria-labelledby="set-title">
+        <div class="set-head">
+          <h2 class="d" id="set-title">Bench Press</h2>
+          <span>Set 3 of 4</span>
+        </div>
+        <p class="last">Last time <b>80 × 6</b></p>
+        <div class="row">
+          <div class="field">
+            <button class="nudge" type="button" data-f="w" data-by="-2.5" aria-label="Weight minus 2.5 kilograms">−</button>
+            <output class="d" id="w" aria-live="off">82.5<small>kg</small></output>
+            <button class="nudge" type="button" data-f="w" data-by="2.5" aria-label="Weight plus 2.5 kilograms">+</button>
+          </div>
+          <span class="x" aria-hidden="true">×</span>
+          <div class="field">
+            <button class="nudge" type="button" data-f="r" data-by="-1" aria-label="One rep fewer">−</button>
+            <output class="d" id="r" aria-live="off">6<small>reps</small></output>
+            <button class="nudge" type="button" data-f="r" data-by="1" aria-label="One rep more">+</button>
+          </div>
+          <button class="tick" id="tick" type="button" aria-pressed="false" aria-label="Log this set">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+          </button>
+        </div>
+        <p class="verdict" id="verdict" aria-live="polite">Try it: change the weight or reps, then tick the set.</p>
+      </div>
+    </section>
+
+    <section class="idea" aria-labelledby="h-track">
+      <div>
+        <h2 class="d" id="h-track">Log it between sets, not after.</h2>
+        <p>Your weight carries over from the last set. Nudge it up or down, tick, and the rest timer starts. It keeps counting on your Lock Screen, and buzzes when it's time to go again.</p>
+      </div>
+      <table class="log">
+        <caption>Leg Day, Monday. 5 exercises, 52 minutes.</caption>
+        <tbody>
+          <tr><th colspan="2">Squat</th></tr>
+          <tr><td>Set 1</td><td class="n">100 × 5</td></tr>
+          <tr><td>Set 2</td><td class="n">100 × 5</td></tr>
+          <tr class="pr"><td>Set 3, best ever</td><td class="n">105 × 5</td></tr>
+          <tr><th colspan="2">Romanian Deadlift</th></tr>
+          <tr><td>Set 1</td><td class="n">90 × 8</td></tr>
+          <tr><td>Set 2</td><td class="n">90 × 8</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="idea" aria-labelledby="h-progress">
+      <div>
+        <h2 class="d" id="h-progress">Watch the numbers climb.</h2>
+        <p>Every lift gets an estimated one-rep max, so a set of 6 and a set of 3 count on the same scale. See your best sets, the volume for each muscle each week, and the lifts that have stalled.</p>
+      </div>
+      <svg class="chart" viewBox="0 0 560 300" role="img" aria-label="Bench press estimated one-rep max over 12 weeks, rising from 88 to 99 kilograms">
+        <text class="big" x="0" y="56">99 kg</text>
+        <text class="note" x="0" y="84">Bench Press, estimated max. Up 11 kg in 12 weeks.</text>
+        <g class="grid"><line x1="0" y1="140" x2="560" y2="140"/><line x1="0" y1="200" x2="560" y2="200"/><line x1="0" y1="260" x2="560" y2="260"/></g>
+        <text class="axis" x="560" y="134" text-anchor="end">100</text>
+        <text class="axis" x="560" y="194" text-anchor="end">93</text>
+        <text class="axis" x="560" y="254" text-anchor="end">86</text>
+        <polyline class="line" points="0,236 43,231 85,222 128,226 170,213 213,205 256,207 298,192 341,183 383,186 426,166 469,158 500,149"/>
+        <circle class="dot" cx="500" cy="149" r="7"/>
+        <text class="axis" x="0" y="290">Aug</text>
+        <text class="axis" x="250" y="290" text-anchor="middle">Sep</text>
+        <text class="axis" x="500" y="290" text-anchor="end">Nov</text>
+      </svg>
+    </section>
+
+    <section class="idea" aria-labelledby="h-guess">
+      <div>
+        <h2 class="d" id="h-guess">No more guessing.</h2>
+        <p>Your weekly split puts today's workout first, with a two-minute warm-up for the muscles you're about to train. Every set shows what you did last time, so you walk up to the bar knowing the number to beat.</p>
+      </div>
+      <div class="beat">
+        <div class="beat-line"><span>Up next in your split</span><b class="d">Push A</b></div>
+        <div class="beat-line"><span>Overhead Press, last time</span><b class="d">50 × 7</b></div>
+        <div class="beat-line target"><span>Beat it with</span><b class="d">52.5 × 6</b></div>
+      </div>
+    </section>
+
+    <section class="simple" aria-labelledby="h-simple">
+      <h2 class="d" id="h-simple">Simple on purpose.</h2>
+      <ul class="nots">
+        <li>No account</li>
+        <li>No feed</li>
+        <li>No ads</li>
+        <li>No tracking</li>
+        <li>Works offline</li>
+      </ul>
+      <p>Your workouts live on your phone, not on our servers. Export them as a spreadsheet whenever you like.</p>
+      <a class="btn" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a>
+    </section>
+  </main>
 
   <footer>
     <span>© 2026 Spottr</span>
-    <a href="privacy/">Privacy</a>
+    <nav aria-label="Footer"><a href="privacy/">Privacy</a></nav>
   </footer>
-</main>
+</div>
+
+<script>
+(() => {
+  const last = { w: 80, r: 6 };
+  const s = { w: 82.5, r: 6, done: false };
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+  const e1rm = (w, r) => w * (1 + r / 30); // Epley, as in the app
+  let timer = null;
+
+  function render() {
+    $('w').firstChild.nodeValue = fmt(s.w);
+    $('r').firstChild.nodeValue = String(s.r);
+    $('tick').setAttribute('aria-pressed', String(s.done));
+    $('tick').setAttribute('aria-label', s.done ? 'Undo this set' : 'Log this set');
+  }
+
+  function verdict() {
+    const now = e1rm(s.w, s.r), before = e1rm(last.w, last.r);
+    const diff = Math.round((now - before) * 10) / 10;
+    if (diff > 0) return `<strong class="win">Beat last time.</strong> Estimated max up ${fmt(diff)} kg. `;
+    if (diff === 0) return '<strong>Matched last time.</strong> Add a rep next week. ';
+    return '<strong>Logged.</strong> Lighter than last time, and that counts too. ';
+  }
+
+  function startRest() {
+    clearInterval(timer);
+    let left = 90;
+    const base = verdict();
+    const show = () => {
+      $('verdict').innerHTML = `${base}Rest <span class="rest">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</span>`;
+    };
+    show();
+    timer = setInterval(() => { left -= 1; if (left <= 0) { clearInterval(timer); $('verdict').innerHTML = `${base}<strong>Rest over.</strong> Set 4 of 4 is up.`; return; } show(); }, 1000);
+  }
+
+  document.querySelectorAll('.nudge').forEach((b) => b.addEventListener('click', () => {
+    const by = Number(b.dataset.by);
+    if (b.dataset.f === 'w') s.w = Math.max(0, Math.min(300, s.w + by));
+    else s.r = Math.max(1, Math.min(30, s.r + by));
+    if (s.done) { s.done = false; clearInterval(timer); $('verdict').textContent = 'Changed. Tick the set to log it again.'; }
+    render();
+  }));
+
+  $('tick').addEventListener('click', () => {
+    s.done = !s.done;
+    render();
+    if (s.done) startRest();
+    else { clearInterval(timer); $('verdict').textContent = 'Unticked. Adjust it, then tick again.'; }
+  });
+
+  render();
+})();
+</script>
 </body>
 </html>
