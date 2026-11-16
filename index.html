@@ -62,10 +62,27 @@
   .btn.small { height: 42px; padding: 0 18px; font-size: 14px; }
 
   /* Hero */
-  .hero { padding: 72px 0 104px; }
-  h1 { font-size: clamp(64px, 12vw, 168px); margin: 0 0 30px; max-width: 6em; }
-  .lead { font-size: 19px; color: var(--graphite); max-width: 30em; margin: 0 0 30px; }
+  .hero { display: grid; grid-template-columns: 1fr 1.05fr; gap: 40px; align-items: center; padding: 48px 0 88px; }
+  h1 { font-size: clamp(64px, 9vw, 132px); margin: 0 0 26px; max-width: 6em; }
+  .lead { font-size: 19px; color: var(--graphite); max-width: 26em; margin: 0 0 30px; }
   .meta { font-size: 14px; color: var(--graphite); margin: 14px 0 0; }
+  .phones { position: relative; height: 600px; }
+  .phone { position: absolute; width: 46%; aspect-ratio: 390 / 844; border-radius: 36px; border: 7px solid var(--ink); overflow: hidden; background: var(--ink); box-shadow: 0 30px 60px -30px rgba(6,5,7,0.45); }
+  .phone img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .phone.p1 { left: 0; top: 70px; transform: rotate(-6deg); }
+  .phone.p2 { left: 27%; top: 0; z-index: 2; }
+  .phone.p3 { right: 0; top: 70px; transform: rotate(6deg); }
+
+  /* With and without. */
+  .versus { padding: 72px 0; border-top: 1px solid var(--plate); }
+  .versus h2 { font-size: clamp(44px, 6vw, 72px); margin: 0 0 32px; max-width: 12em; }
+  .vs { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid var(--ink); }
+  .vs div { padding: 16px 0; border-bottom: 1px solid var(--plate); font-size: 17px; }
+  .vs .head { font-weight: 600; font-size: 14px; color: var(--graphite); padding: 14px 0 10px; }
+  .vs .without { color: var(--graphite); text-decoration: line-through; text-decoration-color: currentColor; text-decoration-thickness: 1px; padding-right: 20px; }
+  .vs .with { font-weight: 600; }
+  .vs .with::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 5px; background: var(--orange); margin-right: 12px; vertical-align: 2px; }
+  .idea .lose { margin-top: 14px; color: var(--ink); font-weight: 600; }
 
   /* Four ideas: a statement beside a real example. */
   section.idea { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: start; padding: 72px 0; border-top: 1px solid var(--plate); }
@@ -129,12 +146,17 @@
 
   @media (max-width: 860px) {
     section.idea { grid-template-columns: 1fr; gap: 36px; }
+    .hero { grid-template-columns: 1fr; gap: 28px; padding-top: 24px; }
+    .phones { height: auto; aspect-ratio: 1 / 1.08; max-width: 520px; width: 100%; margin: 0 auto; }
     .plans { grid-template-columns: 1fr; }
     .hero { padding: 28px 0 64px; }
     section.idea { padding: 56px 0; }
   }
   @media (max-width: 520px) {
     .wrap { padding: 0 18px; }
+    .phone { border-width: 5px; border-radius: 26px; }
+    .phone.p1, .phone.p3 { top: 12%; }
+    .vs div { font-size: 15px; }
     .note { grid-template-columns: 1fr; gap: 2px; }
   }
 </style>
@@ -156,16 +178,33 @@
     <section class="hero">
       <div>
         <h1 class="d">Know what to lift next.</h1>
-        <p class="lead">Spottr is a gym tracker for iPhone. It logs every set in a couple of taps and shows you how to get stronger.</p>
+        <p class="lead">Most people stop getting stronger and never find out why. Spottr logs every set in a couple of taps and tells you exactly what to do next.</p>
         <a class="btn" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a>
         <p class="meta">Free on TestFlight while we finish it for the App Store.</p>
+      </div>
+      <div class="phones">
+        <div class="phone p1"><img src="img/today.webp" alt="Today screen: up next in your split, with the weekly goal ring" width="600" height="1299"></div>
+        <div class="phone p2"><img src="img/review.webp" alt="Workout summary with new personal records and the coach's review" width="600" height="1299"></div>
+        <div class="phone p3"><img src="img/workout.webp" alt="Workout screen: logging Bench Press sets with last time's numbers beside each set" width="600" height="1299"></div>
+      </div>
+    </section>
+
+    <section class="versus" aria-labelledby="h-vs">
+      <h2 class="d" id="h-vs">Stop training on guesswork.</h2>
+      <div class="vs" role="table" aria-label="Training without and with Spottr">
+        <div class="head" role="columnheader">Without Spottr</div><div class="head" role="columnheader">With Spottr</div>
+        <div class="without" role="cell">Guessing what you lifted last week</div><div class="with" role="cell">The number to beat on every set</div>
+        <div class="without" role="cell">The same workout for months</div><div class="with" role="cell">A review and next targets after every session</div>
+        <div class="without" role="cell">Plateaus you don't notice</div><div class="with" role="cell">Stalls flagged the week they start, with a fix</div>
+        <div class="without" role="cell">No idea if it's working</div><div class="with" role="cell">Your next milestone, and when you'll hit it</div>
       </div>
     </section>
 
     <section class="idea" aria-labelledby="h-track">
       <div>
-        <h2 class="d" id="h-track">Log it between sets, not after.</h2>
-        <p>Your weight carries over. Tick a set and the rest timer starts. Missed a session? Add it to any past day.</p>
+        <h2 class="d" id="h-track">Never forget a number again.</h2>
+        <p>Every set you've ever done, one tap away. Your weight carries over and the rest timer starts itself. Missed a session? Add it to any past day.</p>
+        <p class="lose">No more notes app. No more guessing at the rack.</p>
       </div>
       <table class="log">
         <caption>Leg Day, Monday.</caption>
@@ -181,7 +220,8 @@
     <section class="idea" aria-labelledby="h-progress">
       <div>
         <h2 class="d" id="h-progress">Get stronger, and see it.</h2>
-        <p>Watch every lift improve week by week. Spottr tells you when you'll hit your next milestone.</p>
+        <p>Watch every lift climb week by week, and know when you'll hit your next milestone.</p>
+        <p class="lose">Progress you can see is progress you keep chasing.</p>
       </div>
       <svg class="chart" viewBox="0 0 560 300" role="img" aria-label="Bench press estimated max rising from 88 to 99 kilograms over 12 weeks; next milestone 110 kilograms around February">
         <text class="big" x="0" y="56">99 kg</text>
@@ -204,6 +244,7 @@
       <div>
         <h2 class="d" id="h-coach">Insights that make you better.</h2>
         <p>After every workout Spottr shows what's working, what's stalling and what to change. Worked out on your phone.</p>
+        <p class="lose">Every session without it is a session you can't learn from.</p>
       </div>
       <div class="review" role="group" aria-label="Example review after a leg workout">
         <div class="note"><span class="k win">New best</span><div><b>Squat, 105 × 5</b><span>Your estimated max is up 6 kg in four weeks.</span></div></div>
