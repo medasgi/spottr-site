@@ -47,16 +47,15 @@
   .brand svg { width: 34px; height: 34px; }
   .ring { fill: var(--ink); }
   .slice { fill: var(--orange); transform-box: view-box; transform-origin: 47.85% 52.15%; }
+  /* Same as the app's intro: the slice falls along the ring from the top of the gap, then slides out to rest. */
   @media (prefers-reduced-motion: no-preference) {
-    .brand .slice { animation: swing 900ms 250ms both; }
+    .brand .slice { animation: drop 600ms 200ms both; }
   }
-  @keyframes swing {
-    0% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.2,.7,.3,1); }
-    25% { transform: rotate(-48deg); animation-timing-function: cubic-bezier(.55,0,.9,.4); }
-    55% { transform: rotate(6deg); animation-timing-function: ease-out; }
-    72% { transform: rotate(-3deg); }
-    86% { transform: rotate(1deg); }
-    100% { transform: rotate(0deg); }
+  @keyframes drop {
+    0% { transform: rotate(-48deg) translate(-49.5px, 49.5px); animation-timing-function: linear; }
+    10% { transform: rotate(-48deg) translate(-49.5px, 49.5px); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+    60% { transform: rotate(6deg) translate(-49.5px, 49.5px); animation-timing-function: cubic-bezier(.33, 1, .68, 1); }
+    100% { transform: rotate(0deg) translate(0, 0); }
   }
   .btn { display: inline-flex; align-items: center; justify-content: center; height: 52px; padding: 0 26px; border-radius: 26px; background: var(--ink); color: var(--page); font: 600 16px var(--text); text-decoration: none; transition: transform 80ms; }
   .btn:active { transform: scale(0.97); }
