@@ -63,34 +63,10 @@
   .btn.small { height: 42px; padding: 0 18px; font-size: 14px; }
 
   /* Hero */
-  .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; padding: 56px 0 96px; }
-  h1 { font-size: clamp(64px, 10.5vw, 132px); margin: 0 0 26px; }
+  .hero { padding: 72px 0 104px; }
+  h1 { font-size: clamp(64px, 12vw, 168px); margin: 0 0 30px; max-width: 6em; }
   .lead { font-size: 19px; color: var(--graphite); max-width: 30em; margin: 0 0 30px; }
   .meta { font-size: 14px; color: var(--graphite); margin: 14px 0 0; }
-
-  /* The live set: the one thing on the page you can play with. */
-  .set { background: var(--surface); border-radius: 32px; padding: 28px; }
-  .set-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-  .set-head h2 { font-size: 34px; margin: 0; }
-  .set-head span { font-size: 14px; color: var(--graphite); }
-  .last { margin: 18px 0 6px; font-size: 15px; color: var(--graphite); }
-  .last b { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 20px; color: var(--ink); font-variant-numeric: tabular-nums; }
-  .row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
-  .hero > *, section.idea > * { min-width: 0; }
-  .field { flex: 1 1 0; min-width: 0; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; height: 92px; border-radius: 22px; background: var(--page); }
-  .field output { text-align: center; font-size: 56px; }
-  .field small { display: block; font: 500 12px var(--text); color: var(--graphite); margin-top: 2px; letter-spacing: 0; }
-  .x { font-family: var(--display); font-weight: 700; font-size: 26px; color: var(--graphite); }
-  .nudge { width: 44px; height: 44px; border: 0; border-radius: 22px; background: none; color: var(--ink); font: 500 26px var(--text); cursor: pointer; }
-  .nudge:active { background: var(--plate); }
-  .tick { width: 92px; height: 92px; flex: none; border: 0; border-radius: 26px; background: var(--plate); color: var(--surface); cursor: pointer; display: grid; place-items: center; transition: background 160ms, transform 80ms; }
-  .tick:active { transform: scale(0.95); }
-  .tick svg { width: 38px; height: 38px; }
-  .tick[aria-pressed="true"] { background: var(--orange); }
-  .verdict { min-height: 56px; margin: 18px 0 0; font-size: 16px; color: var(--graphite); }
-  .verdict strong { color: var(--ink); font-weight: 600; }
-  .verdict .win { color: var(--orange); }
-  .rest { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink); }
 
   /* Four ideas: a statement beside a real example. */
   section.idea { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: start; padding: 72px 0; border-top: 1px solid var(--plate); }
@@ -128,20 +104,12 @@
   footer nav { display: flex; gap: 22px; }
 
   @media (max-width: 860px) {
-    .hero, section.idea { grid-template-columns: 1fr; gap: 36px; }
+    section.idea { grid-template-columns: 1fr; gap: 36px; }
     .hero { padding: 28px 0 64px; }
     section.idea { padding: 56px 0; }
   }
   @media (max-width: 520px) {
     .wrap { padding: 0 18px; }
-    .set { padding: 20px; border-radius: 28px; }
-    .row { flex-wrap: wrap; }
-    .field { height: 84px; grid-template-columns: 38px 1fr 38px; }
-    .field output { font-size: 42px; }
-    .nudge { width: 38px; }
-    .tick { width: 100%; height: 60px; border-radius: 20px; }
-    .tick svg { width: 30px; height: 30px; }
-    .x { font-size: 20px; }
   }
 </style>
 </head>
@@ -165,31 +133,6 @@
         <p class="lead">Spottr is a gym tracker for iPhone. It logs every set in a couple of taps, shows what you did last time, and tracks your strength week by week.</p>
         <a class="btn" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a>
         <p class="meta">Free on TestFlight while we finish it for the App Store.</p>
-      </div>
-
-      <div class="set" role="group" aria-labelledby="set-title">
-        <div class="set-head">
-          <h2 class="d" id="set-title">Bench Press</h2>
-          <span>Set 3 of 4</span>
-        </div>
-        <p class="last">Last time <b>80 × 6</b></p>
-        <div class="row">
-          <div class="field">
-            <button class="nudge" type="button" data-f="w" data-by="-2.5" aria-label="Weight minus 2.5 kilograms">−</button>
-            <output class="d" id="w" aria-live="off">82.5<small>kg</small></output>
-            <button class="nudge" type="button" data-f="w" data-by="2.5" aria-label="Weight plus 2.5 kilograms">+</button>
-          </div>
-          <span class="x" aria-hidden="true">×</span>
-          <div class="field">
-            <button class="nudge" type="button" data-f="r" data-by="-1" aria-label="One rep fewer">−</button>
-            <output class="d" id="r" aria-live="off">6<small>reps</small></output>
-            <button class="nudge" type="button" data-f="r" data-by="1" aria-label="One rep more">+</button>
-          </div>
-          <button class="tick" id="tick" type="button" aria-pressed="false" aria-label="Log this set">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-          </button>
-        </div>
-        <p class="verdict" id="verdict" aria-live="polite">Try it: change the weight or reps, then tick the set.</p>
       </div>
     </section>
 
@@ -264,58 +207,5 @@
   </footer>
 </div>
 
-<script>
-(() => {
-  const last = { w: 80, r: 6 };
-  const s = { w: 82.5, r: 6, done: false };
-  const $ = (id) => document.getElementById(id);
-  const fmt = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
-  const e1rm = (w, r) => w * (1 + r / 30); // Epley, as in the app
-  let timer = null;
-
-  function render() {
-    $('w').firstChild.nodeValue = fmt(s.w);
-    $('r').firstChild.nodeValue = String(s.r);
-    $('tick').setAttribute('aria-pressed', String(s.done));
-    $('tick').setAttribute('aria-label', s.done ? 'Undo this set' : 'Log this set');
-  }
-
-  function verdict() {
-    const now = e1rm(s.w, s.r), before = e1rm(last.w, last.r);
-    const diff = Math.round((now - before) * 10) / 10;
-    if (diff > 0) return `<strong class="win">Beat last time.</strong> Estimated max up ${fmt(diff)} kg. `;
-    if (diff === 0) return '<strong>Matched last time.</strong> Add a rep next week. ';
-    return '<strong>Logged.</strong> Lighter than last time, and that counts too. ';
-  }
-
-  function startRest() {
-    clearInterval(timer);
-    let left = 90;
-    const base = verdict();
-    const show = () => {
-      $('verdict').innerHTML = `${base}Rest <span class="rest">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</span>`;
-    };
-    show();
-    timer = setInterval(() => { left -= 1; if (left <= 0) { clearInterval(timer); $('verdict').innerHTML = `${base}<strong>Rest over.</strong> Set 4 of 4 is up.`; return; } show(); }, 1000);
-  }
-
-  document.querySelectorAll('.nudge').forEach((b) => b.addEventListener('click', () => {
-    const by = Number(b.dataset.by);
-    if (b.dataset.f === 'w') s.w = Math.max(0, Math.min(300, s.w + by));
-    else s.r = Math.max(1, Math.min(30, s.r + by));
-    if (s.done) { s.done = false; clearInterval(timer); $('verdict').textContent = 'Changed. Tick the set to log it again.'; }
-    render();
-  }));
-
-  $('tick').addEventListener('click', () => {
-    s.done = !s.done;
-    render();
-    if (s.done) startRest();
-    else { clearInterval(timer); $('verdict').textContent = 'Unticked. Adjust it, then tick again.'; }
-  });
-
-  render();
-})();
-</script>
 </body>
 </html>
