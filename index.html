@@ -172,11 +172,12 @@
   @media (max-width: 860px) {
     section.idea { grid-template-columns: 1fr; gap: 36px; }
     .hero { grid-template-columns: 1fr; gap: 28px; padding-top: 24px; }
-    .stage { height: 96vw; max-height: 560px; margin-top: 28px; border-radius: 32px; }
-    .stage::before { border-radius: 32px; }
-    .phone.p2 { width: 52%; left: 24%; bottom: -8%; }
-    .phone.p1 { width: 40%; left: -5%; bottom: -26%; }
-    .phone.p3 { width: 40%; right: -5%; bottom: -26%; }
+    /* On phones: all three screens fit inside the panel, the middle one in front. */
+    .stage { height: 86vw; max-height: 500px; margin-top: 20px; border-radius: 32px; }
+    .stage::before { border-radius: 32px; height: 62%; }
+    .phone.p2 { width: 46%; left: 27%; bottom: -16%; }
+    .phone.p1 { width: 33%; left: 4%; bottom: -22%; }
+    .phone.p3 { width: 33%; right: 4%; bottom: -22%; }
     .vs { grid-template-columns: 1fr; }
     .plans { grid-template-columns: 1fr; }
     .facts { grid-template-columns: 1fr; }
@@ -185,7 +186,8 @@
   }
   @media (max-width: 520px) {
     .wrap { padding: 0 18px; }
-    .phone { border-width: 5px; border-radius: 26px; }
+    .phone { border-width: 4px; border-radius: 22px; }
+    .phone.p2 { border-radius: 26px; }
     .vs-card { padding: 22px; }
     .vs-card li { font-size: 16px; }
     .note { grid-template-columns: 1fr; gap: 2px; }
