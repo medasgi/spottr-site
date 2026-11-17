@@ -44,10 +44,16 @@
   .dots { position: absolute; inset: 0; pointer-events: none;
     background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1.2px); background-size: 22px 22px;
     -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 0%, transparent 75%); }
-  .glow { position: absolute; pointer-events: none; border-radius: 50%; filter: blur(80px); background: radial-gradient(circle, rgba(247,75,1,0.55), rgba(247,75,1,0) 70%); }
+  .glow { position: absolute; pointer-events: none; border-radius: 50%; will-change: transform, opacity;
+    /* A soft radial falloff instead of filter: blur, which is very costly to repaint while it moves on phones. */
+    background: radial-gradient(closest-side, rgba(247,75,1,0.5), rgba(247,75,1,0.32) 30%, rgba(247,75,1,0.14) 60%, rgba(247,75,1,0.04) 82%, rgba(247,75,1,0)); }
 
   /* Header */
   header { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); background: rgba(6,5,7,0.6); border-bottom: 1px solid transparent; transition: border-color .2s; }
+  /* Backdrop blur re-renders on every scroll frame; touch devices get a near-solid bar instead. */
+  @media (hover: none) { header { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,5,7,0.92); } }
+  .shot, .closing-card { contain: paint; }
+  .stage .phone, .shot .phone { will-change: transform; }
   header.scrolled { border-bottom-color: var(--line); }
   .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
@@ -94,7 +100,7 @@
   .note b { color: var(--soft); font-weight: 600; }
 
   .stage { position: relative; height: 640px; }
-  .stage .glow { width: 520px; height: 520px; left: 50%; top: 52%; transform: translate(-50%, -50%); opacity: 0.75; }
+  .stage .glow { width: 680px; height: 680px; left: 50%; top: 52%; transform: translate(-50%, -50%); opacity: 0.75; }
   .phone { position: absolute; aspect-ratio: 390 / 844; border-radius: 46px; padding: 9px; background: linear-gradient(160deg, #2A292D, #0C0B0E 40%, #1C1B1F); box-shadow: 0 50px 100px -30px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 1px rgba(255,255,255,0.06); }
   .phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 38px; }
   .phone::after { content: ''; position: absolute; top: 3.3%; left: 50%; width: 29%; height: 3.4%; transform: translateX(-50%); border-radius: 99px; background: #000; }
@@ -120,7 +126,7 @@
   .ticks li { display: flex; gap: 12px; align-items: center; font-size: 16px; color: var(--soft); }
   .ticks svg { flex: none; width: 22px; height: 22px; }
   .shot { position: relative; height: 540px; border-radius: 32px; background: var(--panel); border: 1px solid var(--line); overflow: hidden; }
-  .shot .glow { width: 420px; height: 420px; left: 50%; bottom: -220px; transform: translateX(-50%); opacity: 0.6; }
+  .shot .glow { width: 560px; height: 560px; left: 50%; bottom: -290px; transform: translateX(-50%); opacity: 0.6; }
   .shot .phone { width: 290px; left: 50%; top: 56px; transform: translateX(-50%); }
 
   /* Research band */
@@ -149,7 +155,7 @@
   /* Closing */
   .closing { padding: 0 0 110px; }
   .closing-card { position: relative; overflow: hidden; text-align: center; border-radius: 36px; border: 1px solid var(--line); background: var(--panel); padding: 96px 24px; }
-  .closing-card .glow { width: 640px; height: 420px; left: 50%; top: 100%; transform: translate(-50%, -50%); opacity: 0.85; }
+  .closing-card .glow { width: 820px; height: 560px; left: 50%; top: 100%; transform: translate(-50%, -50%); opacity: 0.85; }
   .closing-card h2 { position: relative; max-width: 12em; margin: 0 auto 18px; }
   .closing-card p { position: relative; margin: 0 auto 36px; color: var(--soft); font-size: 18px; }
   .closing-card .cta-row { position: relative; justify-content: center; }
@@ -380,68 +386,52 @@
   const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' }) : null;
   document.querySelectorAll('.reveal').forEach((el) => io ? io.observe(el) : el.classList.add('in'));
 
-  // Scroll-linked motion. Everything is tied to scroll position (so it plays backwards when you scroll up)
-  // and eased toward its target each frame, which keeps it smooth on trackpads and phones alike.
-  // Uses the separate translate/rotate/scale properties so it stacks on top of the layout transforms.
+  // Scroll-linked motion, built to stay at 60fps on phones:
+  //  - positions are measured once (and again on resize), so scrolling never forces a layout;
+  //  - only translate/rotate/scale/opacity change, which the GPU composites without repainting;
+  //  - values follow the scroll directly (no easing lag), and it plays backwards when you scroll up.
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const $ = (q, r = document) => r.querySelector(q);
     const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
     const ease = (t) => 1 - Math.pow(1 - t, 3);
-    const hero = { text: $('.hero-grid > div'), front: $('.stage .front'), back: $('.stage .back'), glow: $('.stage .glow') };
-    const shots = [...document.querySelectorAll('.shot')].map((el) => ({ el, phone: $('.phone', el), glow: $('.glow', el) }));
-    const closing = { el: $('.closing-card'), glow: $('.closing-card .glow') };
-    const items = new Map(); // element -> { cur, target }
+    const heroText = $('.hero-grid > div'), front = $('.stage .front'), back = $('.stage .back'), heroGlow = $('.stage .glow');
+    const shots = [...document.querySelectorAll('.shot')].map((el) => ({ el, phone: $('.phone', el), glow: $('.glow', el), top: 0, h: 0 }));
+    const closing = { el: $('.closing-card'), glow: $('.closing-card .glow'), top: 0 };
+    let vh = innerHeight, small = false;
 
-    function set(el, key, v) {
-      if (!el) return;
-      let it = items.get(el); if (!it) items.set(el, it = { cur: {}, target: {} });
-      if (!(key in it.cur)) it.cur[key] = v;
-      it.target[key] = v;
-    }
+
     function measure() {
-      const vh = innerHeight;
-      // Hero: the phones fan apart and drift, the text eases back as you leave.
-      const p = clamp(scrollY / (vh * 0.8));
-      set(hero.text, 'y', p * 90); set(hero.text, 'o', 1 - p * 0.9);
-      set(hero.front, 'y', -p * 90); set(hero.front, 'r', p * 3);
-      set(hero.back, 'x', -p * 70); set(hero.back, 'y', p * 40); set(hero.back, 'r', -p * 9);
-      set(hero.glow, 's', 1 + p * 0.5); set(hero.glow, 'o', 0.75 - p * 0.35);
-      // Feature cards: each phone rises out of its card and the glow warms up as the card comes into view.
+      vh = innerHeight; small = innerWidth < 640;
+      const y = scrollY;
+      for (const s of shots) { const r = s.el.getBoundingClientRect(); s.top = r.top + y; s.h = r.height; }
+      const cr = closing.el.getBoundingClientRect(); closing.top = cr.top + y;
+      update();
+    }
+    function update() {
+      const y = scrollY, k = small ? 0.6 : 1; // smaller moves on small screens
+      const p = clamp(y / (vh * 0.8));
+      heroText.style.translate = `0 ${(p * 90 * k).toFixed(1)}px`; heroText.style.opacity = (1 - p * 0.9).toFixed(3);
+      front.style.translate = `0 ${(-p * 90 * k).toFixed(1)}px`; front.style.rotate = `${(p * 3).toFixed(2)}deg`;
+      back.style.translate = `${(-p * 70 * k).toFixed(1)}px ${(p * 40 * k).toFixed(1)}px`; back.style.rotate = `${(-p * 9).toFixed(2)}deg`;
+      heroGlow.style.scale = (1 + p * 0.5).toFixed(3); heroGlow.style.opacity = (0.75 - p * 0.35).toFixed(3);
       for (const s of shots) {
-        const r = s.el.getBoundingClientRect();
-        const t = ease(clamp((vh - r.top) / (vh * 0.85)));
-        const past = clamp((vh * 0.5 - (r.top + r.height / 2)) / vh, 0, 1);
-        set(s.phone, 'y', (1 - t) * 180 - past * 50); set(s.phone, 's', 0.9 + t * 0.1); set(s.phone, 'r', (1 - t) * 4);
-        set(s.glow, 'o', 0.15 + t * 0.6); set(s.glow, 's', 0.7 + t * 0.5);
+        const top = s.top - y;
+        if (top > vh + 50 || top + s.h < -50) continue; // offscreen: leave it
+        const t = ease(clamp((vh - top) / (vh * 0.85)));
+        const past = clamp((vh * 0.5 - (top + s.h / 2)) / vh);
+        s.phone.style.translate = `0 ${(((1 - t) * 180 - past * 50) * k).toFixed(1)}px`;
+        s.phone.style.rotate = `${((1 - t) * 4).toFixed(2)}deg`; s.phone.style.scale = (0.9 + t * 0.1).toFixed(3);
+        s.glow.style.opacity = (0.15 + t * 0.6).toFixed(3); s.glow.style.scale = (0.7 + t * 0.5).toFixed(3);
       }
-      // Closing: the glow rises like a sunrise.
-      const cr = closing.el.getBoundingClientRect();
-      const c = ease(clamp((vh - cr.top) / (vh * 0.9)));
-      set(closing.glow, 'y', (1 - c) * 160); set(closing.glow, 'o', 0.2 + c * 0.8); set(closing.glow, 's', 0.7 + c * 0.4);
+      const c = ease(clamp((vh - (closing.top - y)) / (vh * 0.9)));
+      closing.glow.style.translate = `0 ${((1 - c) * 160).toFixed(1)}px`; closing.glow.style.opacity = (0.2 + c * 0.8).toFixed(3); closing.glow.style.scale = (0.7 + c * 0.4).toFixed(3);
     }
-    function apply(el, v) {
-      const st = el.style;
-      if ('x' in v || 'y' in v) st.translate = `${(v.x || 0).toFixed(2)}px ${(v.y || 0).toFixed(2)}px`;
-      if ('r' in v) st.rotate = `${v.r.toFixed(3)}deg`;
-      if ('s' in v) st.scale = v.s.toFixed(4);
-      if ('o' in v) st.opacity = v.o.toFixed(3);
-    }
-    let running = false;
-    function frame() {
-      let moving = false;
-      for (const [el, it] of items) {
-        for (const k in it.target) {
-          const d = it.target[k] - it.cur[k];
-          if (Math.abs(d) > 0.001) { it.cur[k] += d * 0.14; moving = true; } else it.cur[k] = it.target[k];
-        }
-        apply(el, it.cur);
-      }
-      running = moving; if (moving) requestAnimationFrame(frame);
-    }
-    function kick() { measure(); if (!running) { running = true; requestAnimationFrame(frame); } }
-    addEventListener('scroll', kick, { passive: true });
-    addEventListener('resize', kick);
-    kick();
+    let queued = false;
+    addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } }, { passive: true });
+    let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(measure, 100); });
+    addEventListener('load', measure);
+    if ('ResizeObserver' in window) new ResizeObserver(() => measure()).observe(document.body);
+    measure();
   }
 </script>
 </body>
