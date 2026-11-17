@@ -156,16 +156,6 @@
   .plan .ticks { margin-bottom: 30px; }
   .plan .btn { margin-top: auto; }
 
-  /* Tools */
-  /* An open list, not more cards: hairlines between items, an orange tick of colour on each. */
-  .tools { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 48px; max-width: 1040px; margin: 0 auto; }
-  .tool { position: relative; padding: 26px 0 26px 22px; border-top: 1px solid var(--line); }
-  .tool::before { content: ''; position: absolute; left: 0; top: 34px; width: 8px; height: 8px; border-radius: 50%; background: var(--orange); }
-  .tool b { display: flex; align-items: center; gap: 10px; font-size: 18px; letter-spacing: -0.01em; margin-bottom: 6px; }
-  .tool em { font-style: normal; font-size: 11px; font-weight: 600; color: var(--orange); border: 1px solid rgba(247,75,1,0.45); padding: 2px 8px; border-radius: 999px; }
-  .tool span { display: block; font-size: 14px; line-height: 1.5; color: var(--muted); }
-  @media (max-width: 860px) { .tools { grid-template-columns: 1fr 1fr; column-gap: 28px; } }
-  @media (max-width: 520px) { .tools { grid-template-columns: 1fr; } }
 
   /* Closing */
   .closing { padding: 0 0 110px; }
@@ -303,7 +293,7 @@
       <div class="feature">
         <div class="reveal">
           <h3>Log it between sets, not after.</h3>
-          <p>Your weights carry over from last time. Tick a set and the rest timer starts, right on your Lock Screen. Switch tabs mid-workout and it stays one tap away.</p>
+          <p>Last time’s weights are already filled in. Tick a set and your rest timer starts, right on your Lock Screen.</p>
           <ul class="ticks">
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>The number to beat on every set</li>
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Rest timer on your Lock Screen and Dynamic Island</li>
@@ -359,24 +349,7 @@
     </div>
   </section>
 
-      <section class="block" id="tools" style="padding-top: 0">
-      <div class="wrap">
-        <div class="head reveal">
-          <h2>Tools that do the maths.</h2>
-          <p>So you can rest between sets, not do sums.</p>
-        </div>
-        <div class="tools reveal">
-          <div class="tool"><b>Plate loader</b><span>Exactly what to put on each side, with the fewest plates your gym has.</span></div>
-          <div class="tool"><b>1RM calculator</b><span>Your one-rep max from any set, and the weight for every rep range.</span></div>
-          <div class="tool"><b>Strength score <em>Pro</em></b><span>Your DOTS and Wilks score, and how each lift ranks.</span></div>
-          <div class="tool"><b>Lift goals <em>Pro</em></b><span>Pick a weight. See the week you’ll hit it.</span></div>
-          <div class="tool"><b>Calories &amp; protein <em>Pro</em></b><span>Daily targets to get leaner, stay the same or build muscle.</span></div>
-          <div class="tool"><b>Guided warm-ups <em>Pro</em></b><span>Warm-up moves and ramp-up sets for what you’re about to train.</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="block" id="pricing" style="padding-top: 0">
+      <section class="block" id="pricing" style="padding-top: 0">
     <div class="wrap">
       <div class="head reveal">
         <h2>Start for free. Go Pro when you want more.</h2>
@@ -438,7 +411,7 @@
       </svg>
       Spottr
     </a>
-    <nav aria-label="Footer"><a href="#features">Features</a><a href="#tools">Tools</a><a href="#pricing">Pricing</a><a href="privacy/">Privacy</a><a href="mailto:support@spottr.me">Contact</a></nav>
+    <nav aria-label="Footer"><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="privacy/">Privacy</a><a href="mailto:support@spottr.me">Contact</a></nav>
     <span>© 2026 Spottr</span>
   </div>
 </footer>
