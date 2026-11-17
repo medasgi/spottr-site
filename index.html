@@ -87,7 +87,7 @@
   /* Hero */
   .hero { position: relative; padding: 56px 0 40px; overflow: hidden; }
   .hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
-  .hero h1 { margin: 22px 0 22px; max-width: 10.5em; }
+  .hero h1 { margin: 0 0 22px; max-width: 10.5em; }
   .hero .lead { font-size: 19px; color: var(--soft); max-width: 28em; margin: 0 0 34px; }
   .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .note { margin: 18px 0 0; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
@@ -105,7 +105,7 @@
   section { position: relative; }
   .block { padding: 120px 0; }
   .head { text-align: center; max-width: 760px; margin: 0 auto 72px; }
-  .head h2 { margin: 20px 0 16px; }
+  .head h2 { margin: 0 0 16px; }
   .head p { margin: 0; font-size: 18px; color: var(--muted); }
 
   /* Features: numbered rows, text beside a card with the phone rising from it. */
@@ -114,7 +114,7 @@
   .feature.flip .shot { order: -1; }
   .num { display: inline-flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); }
   .num span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-strong); color: var(--text); background: rgba(255,255,255,0.03); }
-  .feature h3 { margin: 20px 0 14px; }
+  .feature h3 { margin: 0 0 14px; }
   .feature p { margin: 0 0 26px; font-size: 17px; color: var(--muted); max-width: 30em; }
   .ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
   .ticks li { display: flex; gap: 12px; align-items: center; font-size: 16px; color: var(--soft); }
@@ -126,7 +126,7 @@
   /* Research band */
   .science { padding: 0 0 120px; }
   .science-card { position: relative; overflow: hidden; border-radius: 32px; border: 1px solid var(--line); background: var(--panel); padding: 64px 56px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
-  .science-card h2 { font-size: clamp(32px, 3.8vw, 48px); margin: 20px 0 14px; }
+  .science-card h2 { font-size: clamp(32px, 3.8vw, 48px); margin: 0 0 14px; }
   .science-card p { margin: 0; color: var(--muted); font-size: 17px; }
   .science-card > :not(.dots) { position: relative; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
@@ -186,9 +186,9 @@
     .hero .lead { font-size: 17px; }
     .stage { height: 470px; }
     .stage .front { width: 230px; transform: translateX(-20%); }
-    .stage .back { width: 196px; top: 60px; transform: translateX(-90%) rotate(-7deg); }
+    .stage .back { width: 196px; top: 60px; transform: translateX(-84%) rotate(-7deg); }
     @keyframes rise { from { opacity: 0; transform: translateX(-20%) translateY(40px); } }
-    @keyframes riseBack { from { opacity: 0; transform: translateX(-90%) rotate(-7deg) translateY(40px); } }
+    @keyframes riseBack { from { opacity: 0; transform: translateX(-84%) rotate(-7deg) translateY(40px); } }
     .phone { border-radius: 36px; padding: 7px; }
     .phone img { border-radius: 30px; }
     .block { padding: 84px 0; }
@@ -217,11 +217,6 @@
       </svg>
       Spottr
     </a>
-    <nav class="links" aria-label="Sections">
-      <a href="#features">Features</a>
-      <a href="#science">Science</a>
-      <a href="#pricing">Pricing</a>
-    </nav>
     <a class="btn btn-light btn-small" href="https://testflight.apple.com/join/yscFgh2B">Get the beta</a>
   </div>
 </header>
@@ -231,7 +226,6 @@
     <div class="dots"></div>
     <div class="wrap hero-grid">
       <div>
-        <span class="pill"><i></i>Now in beta on iPhone</span>
         <h1>Most people never reach their gym goals.</h1>
         <p class="lead">Spottr tells you what to lift, where you’re stalling, and how to break through.</p>
         <div class="cta-row">
@@ -241,7 +235,7 @@
           </a>
           <a class="btn btn-ghost" href="#features">See how it works</a>
         </div>
-        <p class="note"><b>Free</b> while in beta · Android coming soon</p>
+        <p class="note">Free during the beta. Android is coming soon.</p>
       </div>
       <div class="stage" aria-hidden="true">
         <div class="glow"></div>
@@ -254,20 +248,18 @@
   <section class="block" id="features">
     <div class="wrap">
       <div class="head reveal">
-        <span class="pill"><i></i>Features</span>
-        <h2>Simple to log. <span class="muted">Smart about what comes next.</span></h2>
+        <h2>Simple to log. Smart about what comes next.</h2>
         <p>Everything you need between sets. Nothing that slows you down.</p>
       </div>
 
       <div class="feature reveal">
         <div>
-          <div class="num"><span>01</span>Log</div>
           <h3>Log it between sets, not after.</h3>
           <p>Your weights carry over from last time. Tick a set and the rest timer starts, right on your Lock Screen.</p>
           <ul class="ticks">
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>The number to beat on every set</li>
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Rest timer on your Lock Screen and Dynamic Island</li>
-            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>A how-to for all 149 exercises</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>A how-to for all 150 exercises</li>
           </ul>
         </div>
         <div class="shot"><div class="dots"></div><div class="glow"></div><div class="phone"><img src="img/today.webp" alt="Today screen showing the next workout in your split, with the weekly goal ring" width="600" height="1299" loading="lazy"></div></div>
@@ -275,7 +267,6 @@
 
       <div class="feature flip reveal">
         <div>
-          <div class="num"><span>02</span>Progress</div>
           <h3>Get stronger, and see it.</h3>
           <p>Every lift gets an estimated max, so you can watch it climb week by week and know when you’ll hit your next milestone.</p>
           <ul class="ticks">
@@ -289,7 +280,6 @@
 
       <div class="feature reveal">
         <div>
-          <div class="num"><span>03</span>Coach</div>
           <h3>A coach after every workout.</h3>
           <p>Finish a session and Spottr reviews it: what’s working, what’s stalling and exactly what to lift next time.</p>
           <ul class="ticks">
@@ -308,7 +298,6 @@
       <div class="science-card reveal">
         <div class="dots"></div>
         <div>
-          <span class="pill"><i></i>Science-based</span>
           <h2>Built on research, not gym myths.</h2>
           <p>Every rep range, rest time and set count in your plan comes from published sports science. You just lift.</p>
         </div>
@@ -324,26 +313,25 @@
   <section class="block" id="pricing" style="padding-top: 0">
     <div class="wrap">
       <div class="head reveal">
-        <span class="pill"><i></i>Pricing</span>
         <h2>Start for free. Go Pro when you want more.</h2>
       </div>
       <div class="plans reveal">
         <div class="plan">
           <h3>Free</h3>
-          <div class="price">€0</div>
+          <div class="price">$0</div>
           <p>Everything you need to train.</p>
           <ul class="ticks">
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited workout logging</li>
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Rest timer, right on your Lock Screen</li>
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Progress charts and personal records</li>
-            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>How-tos for 149 exercises</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F3F4F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>How-tos for 150 exercises</li>
           </ul>
           <a class="btn btn-ghost" href="https://testflight.apple.com/join/yscFgh2B">Get started</a>
         </div>
         <div class="plan pro">
-          <h3>Pro <span class="badge">Free in beta</span></h3>
-          <div class="price">€0 <small>during the beta</small></div>
-          <p>For lifters who want a coach in their pocket.</p>
+          <h3>Pro</h3>
+          <div class="price">$1.99 <small>/ month</small></div>
+          <p>For lifters who want a coach in their pocket. Free while the beta lasts.</p>
           <ul class="ticks">
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>The full coach review after every workout</li>
             <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="rgba(247,75,1,0.15)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#F74B01" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>A plan built for your goals</li>
