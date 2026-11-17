@@ -13,6 +13,8 @@
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preload" href="fonts/jakarta-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/jakarta-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="img/workout.webp" as="image" fetchpriority="high">
 <style>
   /* Fonts are served from this site: no requests to Google or anyone else. SIL Open Font License. */
   @font-face { font-family: 'Plus Jakarta Sans'; src: url(fonts/jakarta-400.woff2) format('woff2'); font-weight: 400; font-display: swap; }
@@ -44,7 +46,7 @@
   .dots { position: absolute; inset: 0; pointer-events: none;
     background-image: radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1.2px); background-size: 22px 22px;
     -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 0%, transparent 75%); }
-  .glow { position: absolute; pointer-events: none; border-radius: 50%; will-change: transform, opacity;
+  .glow { position: absolute; pointer-events: none; border-radius: 50%;
     /* A soft radial falloff instead of filter: blur, which is very costly to repaint while it moves on phones. */
     background: radial-gradient(closest-side, rgba(247,75,1,0.5), rgba(247,75,1,0.32) 30%, rgba(247,75,1,0.14) 60%, rgba(247,75,1,0.04) 82%, rgba(247,75,1,0)); }
 
@@ -53,7 +55,6 @@
   /* Backdrop blur re-renders on every scroll frame; touch devices get a near-solid bar instead. */
   @media (hover: none) { header { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,5,7,0.92); } }
   .shot, .closing-card { contain: paint; }
-  .stage .phone, .shot .phone { will-change: transform; }
   header.scrolled { border-bottom-color: var(--line); }
   .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
@@ -165,14 +166,45 @@
   .foot nav { display: flex; gap: 26px; }
   .foot a:hover { color: var(--text); }
 
-  /* One entrance for the hero phones; sections fade up as they arrive. */
+  /* Motion. Everything here runs on the GPU compositor, never in JavaScript on scroll, so it stays smooth on phones.
+     Browsers with scroll-driven animations (Chrome, Edge, Safari 26+) tie the motion to the scroll position, so it
+     also plays backwards when you scroll up. Others get a one-time transition when each card comes into view. */
   @media (prefers-reduced-motion: no-preference) {
-    .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
-    .js .reveal.in { opacity: 1; transform: none; }
-    .hero .front { animation: rise .9s .15s cubic-bezier(.2,.7,.2,1) both; }
-    .hero .back { animation: riseBack .9s .3s cubic-bezier(.2,.7,.2,1) both; }
-    @keyframes rise { from { opacity: 0; transform: translateX(-34%) translateY(40px); } }
-    @keyframes riseBack { from { opacity: 0; transform: translateX(-112%) rotate(-7deg) translateY(40px); } }
+    .js .reveal { opacity: 0; translate: 0 16px; transition: opacity .5s ease, translate .5s cubic-bezier(.2,.7,.2,1); }
+    .js .reveal.in { opacity: 1; translate: none; }
+    .hero .front { animation: pop .6s cubic-bezier(.2,.7,.2,1) both; }
+    .hero .back { animation: pop .6s .08s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes pop { from { opacity: 0; scale: 0.94; } }
+
+    /* Fallback: phones rise out of their cards once. */
+    .js .shot .phone { translate: 0 140px; rotate: 3deg; transition: translate .9s cubic-bezier(.2,.7,.2,1), rotate .9s cubic-bezier(.2,.7,.2,1); }
+    .js .shot .glow { opacity: 0.15; transition: opacity 1s ease; }
+    .js .shot.in .phone { translate: none; rotate: none; }
+    .js .shot.in .glow { opacity: 0.7; }
+
+    @supports (animation-timeline: view()) {
+      /* Hero: the phones fan apart and the headline eases back as you scroll away. */
+      .hero .front { animation: pop .6s cubic-bezier(.2,.7,.2,1) both, heroFront linear both; animation-timeline: auto, scroll(root); animation-range: normal, 0 80vh; }
+      .hero .back { animation: pop .6s .08s cubic-bezier(.2,.7,.2,1) both, heroBack linear both; animation-timeline: auto, scroll(root); animation-range: normal, 0 80vh; }
+      .hero-grid > div:first-child { animation: heroText linear both; animation-timeline: scroll(root); animation-range: 0 80vh; }
+      .stage .glow { animation: heroGlow linear both; animation-timeline: scroll(root); animation-range: 0 80vh; }
+      @keyframes heroFront { to { translate: 0 -80px; rotate: 3deg; } }
+      @keyframes heroBack { to { translate: -60px 40px; rotate: -9deg; } }
+      @keyframes heroText { to { translate: 0 80px; opacity: 0.1; } }
+      @keyframes heroGlow { to { scale: 1.5; opacity: 0.4; } }
+
+      /* Feature cards: each phone rises out of its card and the glow warms up, following the scroll. */
+      .shot { view-timeline: --shot block; }
+      .js .shot .phone, .js .shot.in .phone { transition: none; translate: none; rotate: none; animation: phoneRise linear both; animation-timeline: --shot; animation-range: entry 0% cover 50%; }
+      .js .shot .glow, .js .shot.in .glow { transition: none; animation: glowUp linear both; animation-timeline: --shot; animation-range: entry 0% cover 50%; }
+      @keyframes phoneRise { from { translate: 0 180px; rotate: 4deg; scale: 0.9; } to { translate: none; rotate: none; scale: none; } }
+      @keyframes glowUp { from { opacity: 0.15; scale: 0.7; } to { opacity: 0.75; scale: 1.2; } }
+
+      /* Closing: the glow rises like a sunrise. */
+      .closing-card { view-timeline: --close block; }
+      .closing-card .glow { animation: sunrise linear both; animation-timeline: --close; animation-range: entry 0% cover 55%; }
+      @keyframes sunrise { from { translate: 0 160px; opacity: 0.2; scale: 0.7; } to { translate: none; opacity: 1; scale: 1.1; } }
+    }
   }
 
   @media (max-width: 980px) {
@@ -193,8 +225,6 @@
     .stage { height: 470px; }
     .stage .front { width: 230px; transform: translateX(-20%); }
     .stage .back { width: 196px; top: 60px; transform: translateX(-84%) rotate(-7deg); }
-    @keyframes rise { from { opacity: 0; transform: translateX(-20%) translateY(40px); } }
-    @keyframes riseBack { from { opacity: 0; transform: translateX(-84%) rotate(-7deg) translateY(40px); } }
     .phone { border-radius: 36px; padding: 7px; }
     .phone img { border-radius: 30px; }
     .block { padding: 84px 0; }
@@ -245,8 +275,8 @@
       </div>
       <div class="stage" aria-hidden="true">
         <div class="glow"></div>
-        <div class="phone back"><img src="img/strength.webp" alt="" width="600" height="1299"></div>
-        <div class="phone front"><img src="img/workout.webp" alt="" width="600" height="1299"></div>
+        <div class="phone back"><img src="img/strength.webp" alt="" width="600" height="1299" fetchpriority="high" decoding="async"></div>
+        <div class="phone front"><img src="img/workout.webp" alt="" width="600" height="1299" fetchpriority="high" decoding="async"></div>
       </div>
     </div>
   </section>
@@ -383,56 +413,9 @@
   // Header hairline once scrolled; text fades up as it arrives.
   const header = document.querySelector('header');
   addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 8), { passive: true });
-  const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' }) : null;
-  document.querySelectorAll('.reveal').forEach((el) => io ? io.observe(el) : el.classList.add('in'));
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' }) : null;
+  document.querySelectorAll('.reveal, .shot').forEach((el) => io ? io.observe(el) : el.classList.add('in'));
 
-  // Scroll-linked motion, built to stay at 60fps on phones:
-  //  - positions are measured once (and again on resize), so scrolling never forces a layout;
-  //  - only translate/rotate/scale/opacity change, which the GPU composites without repainting;
-  //  - values follow the scroll directly (no easing lag), and it plays backwards when you scroll up.
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const $ = (q, r = document) => r.querySelector(q);
-    const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-    const ease = (t) => 1 - Math.pow(1 - t, 3);
-    const heroText = $('.hero-grid > div'), front = $('.stage .front'), back = $('.stage .back'), heroGlow = $('.stage .glow');
-    const shots = [...document.querySelectorAll('.shot')].map((el) => ({ el, phone: $('.phone', el), glow: $('.glow', el), top: 0, h: 0 }));
-    const closing = { el: $('.closing-card'), glow: $('.closing-card .glow'), top: 0 };
-    let vh = innerHeight, small = false;
-
-
-    function measure() {
-      vh = innerHeight; small = innerWidth < 640;
-      const y = scrollY;
-      for (const s of shots) { const r = s.el.getBoundingClientRect(); s.top = r.top + y; s.h = r.height; }
-      const cr = closing.el.getBoundingClientRect(); closing.top = cr.top + y;
-      update();
-    }
-    function update() {
-      const y = scrollY, k = small ? 0.6 : 1; // smaller moves on small screens
-      const p = clamp(y / (vh * 0.8));
-      heroText.style.translate = `0 ${(p * 90 * k).toFixed(1)}px`; heroText.style.opacity = (1 - p * 0.9).toFixed(3);
-      front.style.translate = `0 ${(-p * 90 * k).toFixed(1)}px`; front.style.rotate = `${(p * 3).toFixed(2)}deg`;
-      back.style.translate = `${(-p * 70 * k).toFixed(1)}px ${(p * 40 * k).toFixed(1)}px`; back.style.rotate = `${(-p * 9).toFixed(2)}deg`;
-      heroGlow.style.scale = (1 + p * 0.5).toFixed(3); heroGlow.style.opacity = (0.75 - p * 0.35).toFixed(3);
-      for (const s of shots) {
-        const top = s.top - y;
-        if (top > vh + 50 || top + s.h < -50) continue; // offscreen: leave it
-        const t = ease(clamp((vh - top) / (vh * 0.85)));
-        const past = clamp((vh * 0.5 - (top + s.h / 2)) / vh);
-        s.phone.style.translate = `0 ${(((1 - t) * 180 - past * 50) * k).toFixed(1)}px`;
-        s.phone.style.rotate = `${((1 - t) * 4).toFixed(2)}deg`; s.phone.style.scale = (0.9 + t * 0.1).toFixed(3);
-        s.glow.style.opacity = (0.15 + t * 0.6).toFixed(3); s.glow.style.scale = (0.7 + t * 0.5).toFixed(3);
-      }
-      const c = ease(clamp((vh - (closing.top - y)) / (vh * 0.9)));
-      closing.glow.style.translate = `0 ${((1 - c) * 160).toFixed(1)}px`; closing.glow.style.opacity = (0.2 + c * 0.8).toFixed(3); closing.glow.style.scale = (0.7 + c * 0.4).toFixed(3);
-    }
-    let queued = false;
-    addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } }, { passive: true });
-    let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(measure, 100); });
-    addEventListener('load', measure);
-    if ('ResizeObserver' in window) new ResizeObserver(() => measure()).observe(document.body);
-    measure();
-  }
 </script>
 </body>
 </html>
