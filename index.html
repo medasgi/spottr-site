@@ -94,6 +94,8 @@
   /* Hero */
   .hero { position: relative; padding: 56px 0 40px; overflow: hidden; }
   .hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+  /* The text sits above the phones and their glow, so its buttons can always be tapped. */
+  .hero-grid > div:first-child { position: relative; z-index: 3; }
   .hero h1 { margin: 0 0 22px; max-width: 10.5em; }
   .hero .lead { font-size: 19px; color: var(--soft); max-width: 28em; margin: 0 0 34px; }
   .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
@@ -186,11 +188,9 @@
       /* Hero: the phones fan apart and the headline eases back as you scroll away. */
       .hero .front { animation: pop .6s cubic-bezier(.2,.7,.2,1) both, heroFront linear both; animation-timeline: auto, scroll(root); animation-range: normal, 0 80vh; }
       .hero .back { animation: pop .6s .08s cubic-bezier(.2,.7,.2,1) both, heroBack linear both; animation-timeline: auto, scroll(root); animation-range: normal, 0 80vh; }
-      .hero-grid > div:first-child { animation: heroText linear both; animation-timeline: scroll(root); animation-range: 0 80vh; }
       .stage .glow { animation: heroGlow linear both; animation-timeline: scroll(root); animation-range: 0 80vh; }
       @keyframes heroFront { to { translate: 0 -80px; rotate: 3deg; } }
       @keyframes heroBack { to { translate: -60px 40px; rotate: -9deg; } }
-      @keyframes heroText { to { translate: 0 80px; opacity: 0.1; } }
       @keyframes heroGlow { to { scale: 1.5; opacity: 0.4; } }
 
       /* Feature cards: each phone rises out of its card and the glow warms up, following the scroll. */
