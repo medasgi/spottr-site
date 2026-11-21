@@ -196,15 +196,6 @@
   .stats .num { font-size: clamp(34px, 5vw, 60px); line-height: 1; display: block; white-space: nowrap; }
   .stats span:last-child { display: block; margin-top: 8px; font-size: 14px; color: var(--muted); }
 
-  /* ---------- Research: one quiet line, not a lecture ---------- */
-  .science { padding: 56px 0; }
-  .science .wrap { display: flex; align-items: center; gap: 20px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-top: 32px; padding-bottom: 32px; }
-  .science .flask { flex: none; width: 52px; height: 52px; border-radius: 50%; background: var(--orange-soft); display: grid; place-items: center; }
-  .science .flask svg { width: 24px; height: 24px; stroke: var(--orange); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .science h2 { font-size: clamp(26px, 4vw, 36px); margin: 0 0 4px; }
-  .science p { color: var(--muted); font-size: 16px; max-width: 40em; }
-  @media (max-width: 560px) { .science .wrap { align-items: flex-start; } }
-
   /* ---------- Coach: the goal card, built in HTML so it stays sharp on a phone ---------- */
   .coach-grid { display: grid; gap: 40px; }
   .coach-stage { position: relative; max-width: 460px; width: 100%; }
@@ -405,21 +396,11 @@
     </div>
   </section>
 
-  <section class="science" id="science">
-    <div class="wrap" data-reveal>
-      <span class="flask" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7.5 15h9"/></svg></span>
-      <div>
-        <h2>Every number comes from the research.</h2>
-        <p>Your sets, reps and rest follow published sports science, not gym folklore.</p>
-      </div>
-    </div>
-  </section>
-
   <section id="coach">
     <div class="wrap coach-grid">
       <div class="coach-copy" data-reveal>
         <h2>A coach after every workout.<span class="tag">Pro</span></h2>
-        <p class="lede">Finish a session and Spottr tells you what went well, what’s stalling and exactly what to lift next time.</p>
+        <p class="lede">Finish a session and Spottr tells you what went well, what’s stalling and exactly what to lift next time. Every number comes from published sports science, not gym folklore.</p>
       </div>
 
       <div class="coach-stage">
@@ -436,7 +417,7 @@
 
       <ul class="pro-list" data-reveal>
         <li><h3>Your review</h3><p>New bests, stalls and targets for next time.</p></li>
-        <li><h3>Plan builder</h3><p>A program for your goal, level and week.</p></li>
+        <li><h3>Plan builder</h3><p>Sets, reps and rest from the research, for your goal and week.</p></li>
         <li><h3>Lift goals</h3><p>The week you’ll hit it, and the sets to get there.</p></li>
         <li><h3>Calories and protein</h3><p>Daily targets to lean out or build.</p></li>
       </ul>
