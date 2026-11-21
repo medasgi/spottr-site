@@ -5,7 +5,7 @@
 <script>if(location.protocol==="http:"&&!/^(localhost|127\.)/.test(location.hostname))location.replace("https:"+location.href.slice(5))</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spottr: the gym logbook that tells you what to lift next</title>
-<meta name="description" content="Most people stop getting stronger because they guess their weights. Spottr puts last time’s numbers beside every set and shows you what to beat.">
+<meta name="description" content="Most people train for months and lift the same weights. Spottr takes the guesswork out of every set, so you keep progressing and reach your goals.">
 <meta name="theme-color" content="#EDEEEF">
 <meta property="og:title" content="Spottr: know what to lift next">
 <meta property="og:description" content="Last time’s numbers filled in, the set to beat, and your progress at a glance.">
@@ -152,31 +152,41 @@
   .hint { margin-top: 14px; font-size: 13px; color: var(--muted); text-align: center; }
   @media (prefers-reduced-motion: reduce) { .rest-wrap, .rest, .tick, .segs b { transition: none; } }
 
-  /* ---------- Phones ---------- */
-  .phone { position: relative; width: min(320px, 100%); aspect-ratio: 390 / 844; border-radius: 52px; background: var(--ink); padding: 11px; }
-  .phone img { width: 100%; height: 100%; border-radius: 42px; object-fit: cover; }
-  .phone::after { content: ''; position: absolute; top: 22px; left: 50%; width: 31%; height: 30px; margin-left: -15.5%; border-radius: 15px; background: var(--ink); }
+  /* ---------- Feature sections: copy, a drawn card, then details. Stacked on a phone. ---------- */
+  .feat { display: grid; gap: 32px; }
+  .f-visual { display: flex; justify-content: center; }
+  .card { width: 100%; max-width: 460px; background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 22px 20px; }
+  .load-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); }
+  .load-kg { font-size: clamp(64px, 18vw, 96px); line-height: 0.95; margin-top: 6px; display: flex; align-items: baseline; gap: 8px; }
+  .load-kg > span:last-child { font: 500 18px var(--text); color: var(--muted); }
+  .barbell { display: block; width: 100%; height: auto; margin: 14px 0 6px; overflow: visible; }
+  .load-key { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font: 500 14px var(--text); font-variant-numeric: tabular-nums; }
+  .load-key i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .load-key .muted { color: var(--muted); font-weight: 400; }
+  .up-by { margin-top: 6px; font: 500 14px var(--text); color: var(--orange); }
+  .bars { display: flex; align-items: flex-end; gap: 6px; height: 150px; margin-top: 24px; border-bottom: 1px solid var(--line); }
+  .bars i { flex: 1; height: var(--h); border-radius: 6px 6px 2px 2px; background: #FCD3C0; transform-origin: bottom; }
+  .bars i.now { background: var(--orange); }
+  .months { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  @media (min-width: 900px) {
+    .feat { grid-template-columns: 1fr 1fr; grid-template-areas: "copy visual" "rest visual"; grid-template-rows: auto 1fr; column-gap: 80px; row-gap: 8px; }
+    .feat.flip { grid-template-areas: "visual copy" "visual rest"; }
+    .f-copy { grid-area: copy; } .f-visual { grid-area: visual; align-self: center; } .f-rest { grid-area: rest; align-self: start; }
+    .card { padding: 28px; }
+  }
 
-  /* ---------- Split sections ---------- */
-  .split { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 80px; align-items: center; }
-  .split.flip { grid-template-columns: 1.15fr 0.85fr; }
-  .split.flip .media { order: 2; }
-  .media { display: flex; justify-content: center; }
-  @media (max-width: 900px) { .split, .split.flip { grid-template-columns: 1fr; gap: 48px; } .split.flip .media { order: 0; } }
-
-  .points { list-style: none; padding: 0; margin: 36px 0 0; border-top: 1px solid var(--line); }
+  .points { list-style: none; padding: 0; margin: 8px 0 0; border-top: 1px solid var(--line); }
   .points li { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 22px 0; border-bottom: 1px solid var(--line); }
   .points p { color: var(--muted); font-size: 16px; max-width: 36em; }
   .points .spec { margin-top: 6px; }
   .points .segs { max-width: 280px; }
 
   /* ---------- Progress numbers ---------- */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 40px; border-top: 1px solid var(--line); }
-  .stats div { padding: 24px 20px 0 0; }
-  .stats div + div { padding-left: 20px; border-left: 1px solid var(--line); }
-  .stats .num { font-size: clamp(44px, 5vw, 60px); line-height: 1; display: block; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 8px; border-top: 1px solid var(--line); }
+  .stats div { padding: 20px 12px 0 0; }
+  .stats div + div { padding-left: 14px; border-left: 1px solid var(--line); }
+  .stats .num { font-size: clamp(34px, 5vw, 60px); line-height: 1; display: block; white-space: nowrap; }
   .stats span:last-child { display: block; margin-top: 8px; font-size: 14px; color: var(--muted); }
-  @media (max-width: 560px) { .stats { grid-template-columns: 1fr; } .stats div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } .stats div { padding: 20px 0; } }
 
   /* ---------- Coach: the goal card, built in HTML so it stays sharp on a phone ---------- */
   .coach-grid { display: grid; gap: 40px; }
@@ -231,18 +241,15 @@
   .js [data-reveal].in { opacity: 1; transform: none; }
   .js .segs.spec b { transform: scaleX(0); transform-origin: left; transition: transform .9s cubic-bezier(.2,.7,.2,1) .25s; }
   .js .segs.spec.in b { transform: none; }
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      /* The phones drift a little slower than the page, so the screenshots feel lifted off it. */
-      .media .phone { animation: drift linear both; animation-timeline: view(); animation-range: cover; }
-      @keyframes drift { from { transform: translateY(40px); } to { transform: translateY(-40px); } }
-    }
-  }
+  .js .pl { opacity: 0; transition: transform .6s cubic-bezier(.2,.7,.2,1), opacity .4s ease-out; transition-delay: calc(.25s + var(--i) * 110ms); }
+  .js .pl.l { transform: translateX(-36px); } .js .pl.r { transform: translateX(36px); }
+  .js .in .pl { opacity: 1; transform: none; }
+  .js .bars i { transform: scaleY(0); transition: transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: calc(.2s + var(--i) * 45ms); }
+  .js .in .bars i { transform: none; }
   @media (prefers-reduced-motion: reduce) {
-    .js [data-reveal], .js .segs.spec b { opacity: 1; transform: none; transition: none; }
+    .js [data-reveal], .js .segs.spec b, .js .pl, .js .bars i { opacity: 1; transform: none; transition: none; }
     .g-bar b { transition: none; }
   }
-  @media (max-width: 899px) { .phone { width: min(280px, 78vw); } }
 
   /* ---------- Closing and footer ---------- */
   .closing { text-align: left; }
@@ -278,7 +285,7 @@
     <div class="wrap hero-grid">
       <div>
         <h1>Know what to lift next.</h1>
-        <p class="lede">Most people stop getting stronger because they guess their weights. Spottr puts last time’s numbers beside every set and shows you exactly what to beat.</p>
+        <p class="lede">Most people train for months and lift the same weights. Spottr takes the guesswork out of every set, so you keep progressing and reach the goals you set.</p>
         <div class="cta">
           <a class="btn btn-orange" href="https://testflight.apple.com/join/yscFgh2B">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.06 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.5zM14.2 6.13c.6-.73 1-1.74.9-2.75-.86.04-1.9.58-2.52 1.3-.55.64-1.04 1.67-.91 2.66.96.07 1.94-.49 2.53-1.21z"/></svg>
@@ -344,42 +351,61 @@
   </section>
 
   <section id="workout">
-    <div class="wrap split">
-      <div class="media" data-reveal><div class="phone"><img src="img/workout.webp" width="780" height="1688" alt="A workout in Spottr: Bench Press with last time’s numbers, plates per side and sets ticked in orange" loading="lazy"></div></div>
-      <div data-reveal>
+    <div class="wrap feat flip">
+      <div class="f-copy" data-reveal>
         <h2>Made for the minute between sets.</h2>
-        <p class="lede">Everything you need is already on the screen, so you type a number, tick and get back to the bar.</p>
-        <ul class="points">
-          <li data-reveal style="--i:1">
-            <h3>Last time, filled in</h3>
-            <p>Your previous weight and reps sit beside every set. Tick one and its numbers carry to the next.</p>
-          </li>
-          <li data-reveal style="--i:2">
-            <h3>Plates per side</h3>
-            <p>Spottr works out what to load on each side of the bar, with the plates your gym has.</p>
-            <div class="plates spec"><span class="chip"><i style="height:14px;background:#F74B01"></i>2 × 20</span><span class="chip"><i style="height:8px;background:#A5AAAE"></i>1 × 2.5</span></div>
-          </li>
-          <li data-reveal style="--i:3">
-            <h3>See what’s left</h3>
-            <p>One bar per exercise fills as you go, so you always know how much of the workout remains.</p>
-            <div class="segs spec" aria-hidden="true" data-reveal><span><b style="width:100%"></b></span><span><b style="width:100%"></b></span><span><b style="width:50%"></b></span><span><b style="width:0"></b></span><span><b style="width:0"></b></span><span><b style="width:0"></b></span></div>
-          </li>
-        </ul>
+        <p class="lede">Everything you need is already in front of you, so you log the set and get back to the bar.</p>
       </div>
+      <div class="f-visual">
+        <div class="card load" data-reveal>
+          <div class="load-top"><span>Bench Press, set 3</span><span>Last time 80 × 6</span></div>
+          <div class="load-kg num">82.5<span>kg</span></div>
+          <svg class="barbell" viewBox="0 0 360 150" role="img" aria-label="A barbell loaded with 25, 5 and 1.25 kg plates on each side">
+            <rect x="96" y="72" width="168" height="6" rx="3" fill="#A5AAAE"/>
+            <rect x="12" y="69" width="84" height="12" rx="3" fill="#CBCFD2"/>
+            <rect x="264" y="69" width="84" height="12" rx="3" fill="#CBCFD2"/>
+            <rect x="92" y="62" width="6" height="26" rx="2" fill="#5C6064"/>
+            <rect x="262" y="62" width="6" height="26" rx="2" fill="#5C6064"/>
+            <g class="pl l" style="--i:1"><rect x="72" y="15" width="18" height="120" rx="5" fill="#060507"/></g>
+            <g class="pl l" style="--i:2"><rect x="60" y="40" width="10" height="70" rx="4" fill="#5C6064"/></g>
+            <g class="pl l" style="--i:3"><rect x="52" y="53" width="6" height="44" rx="3" fill="#F74B01"/></g>
+            <g class="pl r" style="--i:1"><rect x="270" y="15" width="18" height="120" rx="5" fill="#060507"/></g>
+            <g class="pl r" style="--i:2"><rect x="290" y="40" width="10" height="70" rx="4" fill="#5C6064"/></g>
+            <g class="pl r" style="--i:3"><rect x="302" y="53" width="6" height="44" rx="3" fill="#F74B01"/></g>
+          </svg>
+          <div class="load-key">
+            <span><i style="background:#060507"></i>25</span><span><i style="background:#5C6064"></i>5</span><span><i style="background:#F74B01"></i>1.25</span><span class="muted">a side, on a 20 kg bar</span>
+          </div>
+        </div>
+      </div>
+      <ul class="points f-rest">
+        <li data-reveal style="--i:1"><h3>Last time, filled in</h3><p>Your previous weight and reps sit beside every set. Tick one and its numbers carry to the next.</p></li>
+        <li data-reveal style="--i:2"><h3>Plates per side</h3><p>Spottr works out what to load on each side of the bar, with the plates your gym has.</p></li>
+        <li data-reveal style="--i:3"><h3>See what’s left</h3><p>One bar per exercise fills as you go, so you always know how much of the workout remains.</p>
+          <div class="segs spec" aria-hidden="true" data-reveal><span><b style="width:100%"></b></span><span><b style="width:100%"></b></span><span><b style="width:50%"></b></span><span><b style="width:0"></b></span><span><b style="width:0"></b></span><span><b style="width:0"></b></span></div></li>
+      </ul>
     </div>
   </section>
 
   <section id="progress">
-    <div class="wrap split flip">
-      <div class="media" data-reveal><div class="phone"><img src="img/progress.webp" width="780" height="1688" alt="Progress in Spottr: personal records, workouts and kg lifted per week" loading="lazy"></div></div>
-      <div data-reveal>
+    <div class="wrap feat">
+      <div class="f-copy" data-reveal>
         <h2>Progress you can read at a glance.</h2>
         <p class="lede">No spreadsheets. Spottr turns your sets into the few numbers that tell you whether you’re moving forward.</p>
-        <div class="stats" data-reveal>
-          <div><span class="num" data-count="7">7</span><span>personal records in the last 3 months</span></div>
-          <div><span class="num">10/13</span><span>weeks you hit your weekly goal</span></div>
-          <div><span class="num" data-count="52">52 min</span><span>average workout, usually at 17:00</span></div>
+      </div>
+      <div class="f-visual">
+        <div class="card trend" data-reveal>
+          <div class="load-top"><span>Bench Press, estimated max</span><span>12 weeks</span></div>
+          <div class="load-kg num"><span data-count="104.5" data-dec>104.5</span><span>kg</span></div>
+          <div class="up-by">Up 14.5 kg since August</div>
+          <div class="bars" aria-hidden="true"><i style="--h:27.3%;--i:0"></i><i style="--h:31.8%;--i:1"></i><i style="--h:34.1%;--i:2"></i><i style="--h:40.9%;--i:3"></i><i style="--h:45.5%;--i:4"></i><i style="--h:45.5%;--i:5"></i><i style="--h:54.5%;--i:6"></i><i style="--h:61.4%;--i:7"></i><i style="--h:68.2%;--i:8"></i><i style="--h:72.7%;--i:9"></i><i style="--h:81.8%;--i:10"></i><i style="--h:93.2%;--i:11" class="now"></i></div>
+          <div class="months" aria-hidden="true"><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span></div>
         </div>
+      </div>
+      <div class="stats f-rest" data-reveal>
+        <div><span class="num" data-count="7">7</span><span>personal records in 3 months</span></div>
+        <div><span class="num">10/13</span><span>weeks you hit your goal</span></div>
+        <div><span class="num" data-count="52">52 min</span><span>average workout</span></div>
       </div>
     </div>
   </section>
@@ -482,7 +508,7 @@
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   function countUp(el) {
     const end = Number(el.dataset.count), tpl = el.textContent, t0 = performance.now(), dur = 900;
-    const show = (n) => { el.textContent = tpl.replace(/[\d,.]+/, el.hasAttribute('data-sep') ? Math.round(n).toLocaleString('en-US') : String(Math.round(n))); };
+    const show = (n) => { el.textContent = tpl.replace(/[\d,.]+/, el.hasAttribute('data-sep') ? Math.round(n).toLocaleString('en-US') : el.hasAttribute('data-dec') ? n.toFixed(1) : String(Math.round(n))); };
     if (still) return show(end);
     const step = (t) => { const k = Math.min(1, (t - t0) / dur); show(end * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
     show(0); requestAnimationFrame(step);
