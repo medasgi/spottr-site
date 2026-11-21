@@ -10,6 +10,7 @@
 <meta property="og:title" content="Spottr: know what to lift next">
 <meta property="og:description" content="Last time’s numbers filled in, the set to beat, and your progress at a glance.">
 <meta property="og:image" content="https://spottr.me/icon-512.png">
+<script>document.documentElement.classList.add("js")</script>
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
@@ -168,7 +169,6 @@
   .points p { color: var(--muted); font-size: 16px; max-width: 36em; }
   .points .spec { margin-top: 6px; }
   .points .segs { max-width: 280px; }
-  .points .segs b { transition: none; }
 
   /* ---------- Progress numbers ---------- */
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 40px; border-top: 1px solid var(--line); }
@@ -178,13 +178,60 @@
   .stats span:last-child { display: block; margin-top: 8px; font-size: 14px; color: var(--muted); }
   @media (max-width: 560px) { .stats { grid-template-columns: 1fr; } .stats div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } .stats div { padding: 20px 0; } }
 
-  /* ---------- Coach ---------- */
-  .pair { display: flex; justify-content: center; align-items: flex-start; gap: 24px; }
-  .pair .phone { width: min(280px, 48%); }
-  .pair .phone:nth-child(2) { margin-top: 72px; }
-  .pro-list { list-style: none; padding: 0; margin: 36px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 28px 36px; }
-  .pro-list p { color: var(--muted); font-size: 15px; }
-  @media (max-width: 560px) { .pro-list { grid-template-columns: 1fr; } }
+  /* ---------- Coach: the review and the goal, built in HTML so they stay sharp on a phone ---------- */
+  .coach-grid { display: grid; gap: 40px; }
+  .coach-stage { position: relative; max-width: 460px; width: 100%; }
+  .review { background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 22px 20px 52px; }
+  .r-meta { font-size: 13px; color: var(--muted); }
+  .review h3.r-title { font: 500 30px/1.1 var(--text); letter-spacing: -0.02em; margin: 2px 0 4px; }
+  .r-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0 20px; }
+  .r-stats div { background: var(--paper); border-radius: 16px; padding: 12px; }
+  .r-stats .num { display: block; font-size: 26px; line-height: 1; }
+  .r-stats span:last-child { font-size: 12px; color: var(--muted); }
+  .r-coach { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .r-coach .tag { margin: 0; padding: 1px 8px; font-size: 12px; }
+  .review h4 { font: 500 20px/1.3 var(--text); margin: 2px 0 8px; }
+  .notes { list-style: none; padding: 0; margin: 0; }
+  .notes li { display: grid; grid-template-columns: 32px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .notes li:first-child { border-top: 0; }
+  .notes .ic { width: 32px; height: 32px; border-radius: 50%; background: var(--orange-soft); display: grid; place-items: center; }
+  .notes .ic svg { width: 16px; height: 16px; stroke: var(--orange); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .notes .ic.grey { background: rgba(6,5,7,0.06); }
+  .notes .ic.grey svg { stroke: var(--muted); }
+  .notes .ic.ink { background: var(--ink); }
+  .notes .ic.ink svg { stroke: #fff; fill: #fff; }
+  .notes b { display: block; font-weight: 500; font-size: 15px; line-height: 1.35; }
+  .notes span { display: block; font-size: 14px; line-height: 1.45; color: var(--muted); }
+  /* The goal card overlaps the review, like it would slide up over it in the app. */
+  .goal { position: relative; margin: -36px 0 0 28px; background: var(--ink); color: #fff; border-radius: 28px; padding: 22px 20px 20px;
+    box-shadow: 0 0 0 6px var(--paper); }
+  .g-head { font-size: 13px; color: var(--seal); }
+  .g-pct { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 12px; }
+  .g-pct .num { font-size: 64px; line-height: 0.9; }
+  .g-pct span:last-child { color: var(--seal); font-size: 15px; }
+  .g-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.14); overflow: hidden; }
+  .g-bar b { display: block; height: 100%; width: 0; background: var(--orange); border-radius: 4px; transition: width 1.2s cubic-bezier(.2,.7,.2,1) .2s; }
+  .g-when { margin-top: 12px; font-weight: 500; }
+  .g-sub { font-size: 13px; color: var(--seal); }
+  .weeks { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 16px; }
+  .weeks i { height: 28px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+  .weeks i.now { background: var(--orange); }
+  .weeks i.light { background: rgba(255,255,255,0.05); outline: 1px dashed rgba(255,255,255,0.2); outline-offset: -1px; }
+  .weeks i.test { background: #fff; }
+  .phases { display: grid; grid-template-columns: 3fr 1fr 2fr 1fr; gap: 4px; margin-top: 6px; font-size: 11px; color: var(--seal); }
+  .pro-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 20px; }
+  .pro-list h3 { font-size: 16px; }
+  .pro-list p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+  @media (min-width: 900px) {
+    .coach-grid { grid-template-columns: 1fr 1fr; grid-template-areas: "copy stage" "list stage"; grid-template-rows: auto 1fr; column-gap: 80px; row-gap: 40px; align-items: start; }
+    .coach-copy { grid-area: copy; }
+    .coach-stage { grid-area: stage; justify-self: end; }
+    .pro-list { grid-area: list; gap: 28px 36px; }
+    .pro-list h3 { font-size: 18px; }
+    .pro-list p { font-size: 15px; }
+    .review { padding: 28px 28px 76px; }
+    .goal { margin: -56px 0 0 -64px; padding: 26px 28px 24px; }
+  }
   .tag { display: inline-block; padding: 3px 10px; border-radius: 10px; background: var(--orange-soft); color: var(--orange); font: 600 13px var(--text); vertical-align: middle; margin-left: 6px; }
 
   /* ---------- Pricing ---------- */
@@ -201,6 +248,24 @@
   .plan li::before { content: ''; position: absolute; left: 2px; top: 0.35em; width: 12px; height: 7px; border-left: 2px solid var(--orange); border-bottom: 2px solid var(--orange); transform: rotate(-45deg); }
   .plan .btn { margin-top: auto; align-self: flex-start; }
   .plan.pro .btn { background: #fff; color: var(--ink); }
+
+  /* ---------- Scrolling: things settle in as they arrive, once, and never when motion is reduced ---------- */
+  .js [data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 80ms); }
+  .js [data-reveal].in { opacity: 1; transform: none; }
+  .js .segs.spec b { transform: scaleX(0); transform-origin: left; transition: transform .9s cubic-bezier(.2,.7,.2,1) .25s; }
+  .js .segs.spec.in b { transform: none; }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      /* The phones drift a little slower than the page, so the screenshots feel lifted off it. */
+      .media .phone { animation: drift linear both; animation-timeline: view(); animation-range: cover; }
+      @keyframes drift { from { transform: translateY(40px); } to { transform: translateY(-40px); } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .js [data-reveal], .js .segs.spec b { opacity: 1; transform: none; transition: none; }
+    .g-bar b { transition: none; }
+  }
+  @media (max-width: 899px) { .phone { width: min(280px, 78vw); } }
 
   /* ---------- Closing and footer ---------- */
   .closing { text-align: left; }
@@ -304,24 +369,24 @@
 
   <section id="workout">
     <div class="wrap split">
-      <div class="media"><div class="phone"><img src="img/workout.webp" width="780" height="1688" alt="A workout in Spottr: Bench Press with last time’s numbers, plates per side and sets ticked in orange" loading="lazy"></div></div>
-      <div>
+      <div class="media" data-reveal><div class="phone"><img src="img/workout.webp" width="780" height="1688" alt="A workout in Spottr: Bench Press with last time’s numbers, plates per side and sets ticked in orange" loading="lazy"></div></div>
+      <div data-reveal>
         <h2>Made for the minute between sets.</h2>
         <p class="lede">Everything you need is already on the screen, so you type a number, tick and get back to the bar.</p>
         <ul class="points">
-          <li>
+          <li data-reveal style="--i:1">
             <h3>Last time, filled in</h3>
             <p>Your previous weight and reps sit beside every set. Tick one and its numbers carry to the next.</p>
           </li>
-          <li>
+          <li data-reveal style="--i:2">
             <h3>Plates per side</h3>
             <p>Spottr works out what to load on each side of the bar, with the plates your gym has.</p>
             <div class="plates spec"><span class="chip"><i style="height:14px;background:#F74B01"></i>2 × 20</span><span class="chip"><i style="height:8px;background:#A5AAAE"></i>1 × 2.5</span></div>
           </li>
-          <li>
+          <li data-reveal style="--i:3">
             <h3>See what’s left</h3>
             <p>One bar per exercise fills as you go, so you always know how much of the workout remains.</p>
-            <div class="segs spec" aria-hidden="true"><span><b style="width:100%"></b></span><span><b style="width:100%"></b></span><span><b style="width:50%"></b></span><span><b style="width:0"></b></span><span><b style="width:0"></b></span><span><b style="width:0"></b></span></div>
+            <div class="segs spec" aria-hidden="true" data-reveal><span><b style="width:100%"></b></span><span><b style="width:100%"></b></span><span><b style="width:50%"></b></span><span><b style="width:0"></b></span><span><b style="width:0"></b></span><span><b style="width:0"></b></span></div>
           </li>
         </ul>
       </div>
@@ -330,50 +395,80 @@
 
   <section id="progress">
     <div class="wrap split flip">
-      <div class="media"><div class="phone"><img src="img/progress.webp" width="780" height="1688" alt="Progress in Spottr: personal records, workouts and kg lifted per week" loading="lazy"></div></div>
-      <div>
+      <div class="media" data-reveal><div class="phone"><img src="img/progress.webp" width="780" height="1688" alt="Progress in Spottr: personal records, workouts and kg lifted per week" loading="lazy"></div></div>
+      <div data-reveal>
         <h2>Progress you can read at a glance.</h2>
         <p class="lede">No spreadsheets. Spottr turns your sets into the few numbers that tell you whether you’re moving forward.</p>
-        <div class="stats">
-          <div><span class="num">7</span><span>personal records in the last 3 months</span></div>
+        <div class="stats" data-reveal>
+          <div><span class="num" data-count="7">7</span><span>personal records in the last 3 months</span></div>
           <div><span class="num">10/13</span><span>weeks you hit your weekly goal</span></div>
-          <div><span class="num">52 min</span><span>average workout, usually at 17:00</span></div>
+          <div><span class="num" data-count="52">52 min</span><span>average workout, usually at 17:00</span></div>
         </div>
         <ul class="points">
-          <li><h3>Every lift, charted</h3><p>Estimated max, heaviest set and volume for each exercise, plus cardio minutes and the time you spend in the gym.</p></li>
-          <li><h3>Muscles you’re missing</h3><p>See which muscles get the sets and which ones you keep skipping.</p></li>
+          <li data-reveal style="--i:1"><h3>Every lift, charted</h3><p>Estimated max, heaviest set and volume for each exercise, plus cardio minutes and the time you spend in the gym.</p></li>
+          <li data-reveal style="--i:2"><h3>Muscles you’re missing</h3><p>See which muscles get the sets and which ones you keep skipping.</p></li>
         </ul>
       </div>
     </div>
   </section>
 
   <section id="coach">
-    <div class="wrap split">
-      <div class="media pair">
-        <div class="phone"><img src="img/review.webp" width="780" height="1688" alt="The coach review after a workout: new personal records and what to lift next time" loading="lazy"></div>
-        <div class="phone"><img src="img/goal.webp" width="780" height="1688" alt="A lift goal: 64% of the way to a 100 kg bench, with a week-by-week plan" loading="lazy"></div>
-      </div>
-      <div>
+    <div class="wrap coach-grid">
+      <div class="coach-copy" data-reveal>
         <h2>A coach after every workout.<span class="tag">Pro</span></h2>
         <p class="lede">Finish a session and Spottr tells you what went well, what’s stalling and exactly what to lift next time.</p>
-        <ul class="pro-list">
-          <li><h3>Your review</h3><p>New bests, stalls and targets for your next session.</p></li>
-          <li><h3>Plan builder</h3><p>A program built around your goal, your level and your week.</p></li>
-          <li><h3>Lift goals</h3><p>Pick a target and see the week you’ll hit it, with the sets to get there.</p></li>
-          <li><h3>Strength score</h3><p>Your DOTS score and how each lift compares with other lifters.</p></li>
-          <li><h3>Guided warm-ups</h3><p>Short warm-up moves and ramp-up sets for what you’re about to train.</p></li>
-          <li><h3>Calories and protein</h3><p>Daily targets to lean out, hold steady or build muscle.</p></li>
-        </ul>
       </div>
+
+      <div class="coach-stage">
+        <article class="review" data-reveal aria-label="Example coach review">
+          <div class="r-meta">Workout complete</div>
+          <h3 class="r-title">Upper A</h3>
+          <div class="r-meta">Thursday 19 November · 17:04–18:02</div>
+          <div class="r-stats">
+            <div><span class="num" data-count="6940" data-sep>6,940</span><span>kg lifted</span></div>
+            <div><span class="num" data-count="17">17</span><span>sets</span></div>
+            <div><span class="num" data-count="2">2</span><span>new bests</span></div>
+          </div>
+          <div class="r-coach">Your coach <span class="tag">Pro</span></div>
+          <h4>Strong session</h4>
+          <ul class="notes">
+            <li data-reveal style="--i:1"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M12 13v4M8 20h8M17 6h2.5a2 2 0 0 1-2.5 3M7 6H4.5A2 2 0 0 0 7 9"/></svg></span><div><b>Bench Press keeps climbing</b><span>82.5 × 8, a new best. Your estimated max is up 3 kg, five sessions in a row.</span></div></li>
+            <li data-reveal style="--i:2"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6 4 4 6-7"/><path d="M15 8h5v5"/></svg></span><div><b>Barbell Row: add 2.5 kg</b><span>Every set hit 10 reps. Go to 75 kg next time.</span></div></li>
+            <li data-reveal style="--i:3"><span class="ic grey"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></svg></span><div><b>Lateral Raise: above the range</b><span>16 reps a set against 12–15. Add 1 kg so the reps land in it.</span></div></li>
+            <li data-reveal style="--i:4"><span class="ic ink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7l8 5-8 5z"/></svg></span><div><b>Next: Lower A</b><span>Squat 112.5 × 6. Romanian Deadlift 92.5 × 10.</span></div></li>
+          </ul>
+        </article>
+
+        <article class="goal" data-reveal style="--i:2" aria-label="Example lift goal">
+          <div class="g-head">Bench Press · goal 115 kg × 1</div>
+          <div class="g-pct"><span class="num" data-count="58">58%</span><span>of the way</span></div>
+          <div class="g-bar"><b data-fill="58"></b></div>
+          <div class="g-when">About 7 weeks, by mid January</div>
+          <div class="g-sub">Estimated max 104.5 kg, up from 90 kg</div>
+          <div class="weeks" aria-hidden="true"><i class="now"></i><i></i><i></i><i class="light"></i><i></i><i></i><i class="test"></i></div>
+          <div class="phases" aria-hidden="true"><span>Build · now</span><span>Lighter</span><span>Strength</span><span>Test</span></div>
+        </article>
+      </div>
+
+      <ul class="pro-list" data-reveal>
+        <li><h3>Your review</h3><p>New bests, stalls and targets for next time.</p></li>
+        <li><h3>Plan builder</h3><p>A program for your goal, level and week.</p></li>
+        <li><h3>Lift goals</h3><p>The week you’ll hit it, and the sets to get there.</p></li>
+        <li><h3>Strength score</h3><p>How each lift compares with other lifters.</p></li>
+        <li><h3>Guided warm-ups</h3><p>Moves and ramp-up sets for today’s lifts.</p></li>
+        <li><h3>Calories and protein</h3><p>Daily targets to lean out or build.</p></li>
+      </ul>
     </div>
   </section>
 
   <section id="pricing">
     <div class="wrap">
+      <div data-reveal>
       <h2>Free to train. Pro when you want a coach.</h2>
       <p class="lede">Everything you need to log and progress is free. Pro adds the coaching and keeps your whole history.</p>
+      </div>
       <div class="plans">
-        <div class="plan">
+        <div class="plan" data-reveal>
           <h3>Free</h3>
           <div class="price num">$0</div>
           <p class="note">For as long as you like.</p>
@@ -387,7 +482,7 @@
           </ul>
           <a class="btn btn-ink" href="https://testflight.apple.com/join/yscFgh2B">Get started</a>
         </div>
-        <div class="plan pro">
+        <div class="plan pro" data-reveal style="--i:1">
           <h3>Pro</h3>
           <div class="price num">$2.99<small>a month</small></div>
           <p class="note">Free while the beta lasts.</p>
@@ -407,7 +502,7 @@
 
   <section class="closing">
     <div class="wrap">
-      <h2>Your next set is waiting.</h2>
+      <h2 data-reveal>Your next set is waiting.</h2>
       <div class="cta"><a class="btn btn-orange" href="https://testflight.apple.com/join/yscFgh2B">Join the iPhone beta</a></div>
     </div>
   </section>
@@ -429,6 +524,27 @@
   // Header hairline once scrolled.
   const header = document.querySelector('header');
   addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 8), { passive: true });
+
+  // Scroll reveals: each marked block settles in once; numbers count up; the goal bar fills.
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function countUp(el) {
+    const end = Number(el.dataset.count), tpl = el.textContent, t0 = performance.now(), dur = 900;
+    const show = (n) => { el.textContent = tpl.replace(/[\d,.]+/, el.hasAttribute('data-sep') ? Math.round(n).toLocaleString('en-US') : String(Math.round(n))); };
+    if (still) return show(end);
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur); show(end * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+    show(0); requestAnimationFrame(step);
+  }
+  function reveal(el) {
+    el.classList.add('in');
+    el.querySelectorAll('[data-count]').forEach((n) => { if (!n.dataset.done) { n.dataset.done = 1; countUp(n); } });
+    el.querySelectorAll('[data-fill]').forEach((b) => { b.style.width = b.dataset.fill + '%'; });
+  }
+  const items = document.querySelectorAll('[data-reveal]');
+  if (!('IntersectionObserver' in window)) items.forEach(reveal);
+  else {
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { reveal(e.target); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    items.forEach((el) => io.observe(el));
+  }
 
   // The hero workout: tick a set, rest starts, skip or adjust it, move to the next exercise.
   const PLATE = { 25: ['#060507', 15], 20: ['#F74B01', 14], 10: ['#3A3E43', 11], 5: ['#5C6064', 9], 2.5: ['#A5AAAE', 8], 1.25: ['#CBCFD2', 7] };
