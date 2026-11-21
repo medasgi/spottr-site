@@ -196,6 +196,25 @@
   .stats .num { font-size: clamp(34px, 5vw, 60px); line-height: 1; display: block; white-space: nowrap; }
   .stats span:last-child { display: block; margin-top: 8px; font-size: 14px; color: var(--muted); }
 
+  /* ---------- Research: every rule with the study behind it, like a reference list ---------- */
+  .science { background: var(--ink); color: #fff; }
+  .science .lede { color: var(--seal); }
+  .refs { list-style: none; padding: 0; margin: 40px 0 0; border-top: 1px solid rgba(255,255,255,0.14); }
+  .refs li { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 22px 0; border-bottom: 1px solid rgba(255,255,255,0.14); }
+  .refs .num { font-size: clamp(40px, 9vw, 56px); line-height: 1; color: #fff; }
+  .refs .num small { font: 500 15px var(--text); color: var(--seal); margin-left: 8px; }
+  .refs p { font-size: 16px; color: #fff; max-width: 34em; }
+  .refs cite { font-style: normal; font-size: 13px; color: var(--seal); }
+  .refs cite::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); margin-right: 8px; vertical-align: 2px; }
+  @media (min-width: 900px) {
+    .science-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 80px; align-items: start; }
+    .science-grid .refs { margin-top: 0; }
+    .science-grid > div:first-child { position: sticky; top: 120px; }
+    .refs li { grid-template-columns: 200px 1fr; column-gap: 32px; align-items: baseline; }
+    .refs li > p, .refs li > cite { grid-column: 2; }
+    .refs .num { grid-row: span 2; }
+  }
+
   /* ---------- Coach: the goal card, built in HTML so it stays sharp on a phone ---------- */
   .coach-grid { display: grid; gap: 40px; }
   .coach-stage { position: relative; max-width: 460px; width: 100%; }
@@ -393,6 +412,22 @@
         <div><span class="num">10/13</span><span>weeks you hit your goal</span></div>
         <div><span class="num" data-count="52">52 min</span><span>average workout</span></div>
       </div>
+    </div>
+  </section>
+
+  <section class="science" id="science">
+    <div class="wrap science-grid">
+      <div data-reveal>
+        <h2>Every number comes from the research.</h2>
+        <p class="lede">Sets, reps, rest and exercise choice all follow published meta-analyses and trials, so your time in the gym goes where it builds the most muscle.</p>
+      </div>
+      <ol class="refs">
+        <li data-reveal style="--i:1"><span class="num">12–20<small>sets</small></span><p>Hard sets per muscle each week. More grows more, with diminishing returns.</p><cite>Baz-Valle et al., 2022 · Pelland et al., 2026</cite></li>
+        <li data-reveal style="--i:2"><span class="num">≤ 10<small>per session</small></span><p>Past this for one muscle in one workout, extra sets add nothing measurable, so your sessions stop there.</p><cite>Remmert et al., 2025</cite></li>
+        <li data-reveal style="--i:3"><span class="num">0–2<small>reps left</small></span><p>Sets that end close to failure build more muscle, whether the weight is heavy or light.</p><cite>Robinson et al., 2024 · Lopez et al., 2021</cite></li>
+        <li data-reveal style="--i:4"><span class="num">2 min<small>rest</small></span><p>Resting longer than a minute between sets grows a little more muscle.</p><cite>Singer et al., 2024</cite></li>
+        <li data-reveal style="--i:5"><span class="num">Stretch</span><p>Exercises that load a muscle when it’s long grow it more, so plans favour seated leg curls and overhead triceps work.</p><cite>Maeo et al., 2021 and 2023</cite></li>
+      </ol>
     </div>
   </section>
 
